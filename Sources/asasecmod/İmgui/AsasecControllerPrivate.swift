@@ -47,18 +47,18 @@ class CustomConfigView: UIView {
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
         
-        // 1. Açma Kapama Butonu (Preferences bağımsız)
+        // Fiyatı 0.01 Yap Butonu (Başlangıç durumunu Preferences'tan alıyoruz)
+        isFeatureEnabled = Preferences.isZeroPointOnePriceEnabled
+        
         toggleButton = UIButton(type: .system)
         toggleButton.frame = CGRect(x: 18, y: 56, width: 234, height: 36)
-        toggleButton.backgroundColor = UIColor.red
-        toggleButton.setTitle("Özellik: Kapandı", for: .normal)
-        toggleButton.setTitleColor(.white, for: .normal)
+        updateToggleButtonUI()
         toggleButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
         toggleButton.layer.cornerRadius = 6.0
         toggleButton.addTarget(self, action: #selector(toggleTapped), for: .touchUpInside)
         customWindow.addSubview(toggleButton)
         
-        // 2. Geri Tuşu
+        // Geri Tuşu
         let backButton = UIButton(type: .system)
         backButton.frame = CGRect(x: 18, y: 104, width: 234, height: 36)
         backButton.backgroundColor = UIColor(red: 0.20, green: 0.20, blue: 0.25, alpha: 1.0)
@@ -70,6 +70,16 @@ class CustomConfigView: UIView {
         customWindow.addSubview(backButton)
     }
     
+    private func updateToggleButtonUI() {
+        if isFeatureEnabled {
+            toggleButton.setTitle("Fiyatı 0.01 Yap: Açık", for: .normal)
+            toggleButton.backgroundColor = UIColor.green
+        } else {
+            toggleButton.setTitle("Fiyatı 0.01 Yap: Kapalı", for: .normal)
+            toggleButton.backgroundColor = UIColor.red
+        }
+    }
+    
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
         guard let view = gesture.view else { return }
         let translation = gesture.translation(in: self)
@@ -79,16 +89,11 @@ class CustomConfigView: UIView {
     
     @objc private func toggleTapped() {
         isFeatureEnabled.toggle()
+        Preferences.isZeroPointOnePriceEnabled = isFeatureEnabled
+        updateToggleButtonUI()
         
-        if isFeatureEnabled {
-            toggleButton.setTitle("Özellik: Açıldı", for: .normal)
-            toggleButton.backgroundColor = UIColor.green
-            AlertHelper.show(title: "Özel Yapılandırma", message: "Açıldı")
-        } else {
-            toggleButton.setTitle("Özellik: Kapandı", for: .normal)
-            toggleButton.backgroundColor = UIColor.red
-            AlertHelper.show(title: "Özel Yapılandırma", message: "Kapandı")
-        }
+        let statusText = isFeatureEnabled ? "Açık" : "Kapalı"
+        AlertHelper.show(title: "Özel Yapılandırma", message: "Fiyatı 0.01 Yap: \(statusText)")
     }
     
     @objc private func backTapped() {
