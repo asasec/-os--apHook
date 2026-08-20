@@ -1,9 +1,6 @@
 import UIKit
 
-// Hooking veya diğer mod dosyalarının erişebilmesi için ana Preferences sınıfı (Sadece Bedava Satın Alma aktif)
-public struct Preferences {
-    public static var isFreePurchaseEnabled: Bool = false
-}
+// (Preferences tanımı kaldırıldı, proje içindeki mevcut Preferences.swift kullanılacak)
 
 struct AlertHelper {
     static func show(title: String, message: String) {
