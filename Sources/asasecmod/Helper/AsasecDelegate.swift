@@ -3,39 +3,36 @@ import StoreKit
 final class AsasecDelegate: NSObject, SKProductsRequestDelegate {
     static let shared: AsasecDelegate = .init()
     var delegates: [SKProductsRequestDelegate] = []
+    var products: [SKProduct] = []
     
     func productsRequest(
         _ request: SKProductsRequest,
         didReceive response: SKProductsResponse
     ) {
-        // İstek atılan orijinal ürün ID'lerini güvenli yoldan alalım
-        var identifiers: [String] = []
-        if let internalReq = request.value(forKey: "_productsRequestInternal") as? NSObject,
-           let productIds = internalReq.value(forKey: "_productIdentifiers") as? Set<String> {
-            identifiers = Array(productIds)
+        // Eğer gelen yanıt boş değilse orijinal akışı bozmadan ilet
+        guard response.products.isEmpty else {
+            _ = delegates.map { $0.productsRequest(request, didReceive: response) }
+            return
         }
         
-        // Eğer oyun ürün bulamadıysa veya liste eksikse, kendi sahte ürünlerimizi oluşturalım
-        var finalProducts = response.products
-        
-        if finalProducts.isEmpty && !identifiers.isEmpty {
-            finalProducts = identifiers.map { id in
-                let product = SKProduct()
-                product.setValue(id, forKey: "productIdentifier")
-                product.setValue(0.01 as NSDecimalNumber, forKey: "price")
-                product.setValue(Locale(identifier: "tr_TR"), forKey: "priceLocale")
-                product.setValue("Açıklama", forKey: "localizedDescription")
-                product.setValue("Ürün", forKey: "localizedTitle")
-                return product
+        // Ürün listesini güvenli bir şekilde cache'leyip döndürelim
+        if products.isEmpty {
+            if let _request = request.value(forKey: "_productsRequestInternal") as? AnyObject,
+               let _identifiers = _request.value(forKey: "_productIdentifiers") as? Set<String> {
+                let identifiers: [String] = Array(_identifiers)
+                
+                products = identifiers.map { id in
+                    let product = SKProduct()
+                    // Çökmeyi önlemek için güvenli alanlar
+                    product.setValue(id, forKey: "productIdentifier")
+                    return product
+                }
             }
         }
         
-        // Sahte ürünleri içeren yeni bir yanıt nesnesi hazırlayalım
         let fakeResponse = SKProductsResponse()
-        fakeResponse.setValue(finalProducts, forKey: "products")
-        fakeResponse.setValue(response.invalidProductIdentifiers, forKey: "invalidProductIdentifiers")
+        fakeResponse.setValue(products, forKey: "products")
         
-        // Tüm delegelere bu yanıtı iletelim
         _ = delegates.map { $0.productsRequest(request, didReceive: fakeResponse) }
     }
 }
