@@ -18,35 +18,35 @@ struct TransactionHook: HookGroup {
 
     let replace0: T0 = { obj, sel in
         if !Preferences.isFreePurchaseEnabled {
-            return orig0(obj, sel)
+            return .failed // Kapalıyken işlem başarısız/iptal gibi davranır, çökme olmaz
         }
         return .purchased
     }
     
     let replace1: T1 = { obj, sel in
         if !Preferences.isFreePurchaseEnabled {
-            return orig1(obj, sel)
+            return ""
         }
         return UUID().uuidString
     }
     
     let replace2: T2 = { obj, sel in
         if !Preferences.isFreePurchaseEnabled {
-            return orig2(obj, sel)
+            return ""
         }
         return UUID().uuidString
     }
     
     let replace3: T3 = { obj, sel in
         if !Preferences.isFreePurchaseEnabled {
-            return orig3(obj, sel)
+            return nil
         }
         return nil
     }
     
     let replace4: T4 = { obj, sel in
         if !Preferences.isFreePurchaseEnabled {
-            return orig4(obj, sel)
+            return Date()
         }
         return Date()
     }
