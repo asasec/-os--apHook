@@ -13,9 +13,8 @@ struct ProductHook: Hook {
             if Preferences.isZeroPointOnePriceEnabled {
                 return 0.01
             }
-            // Kapalıysa orijinal fonksiyonu çalıştırıp normal fiyatı döndür
-            let originalMethod = unsafeBitCast(getOriginal(), to: T.self)
-            return originalMethod(selfObj, sel)
+            // Kapalıysa orijinal fonksiyonu çağır
+            return orig(selfObj, sel)
         }
     }
 }
