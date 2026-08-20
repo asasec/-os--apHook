@@ -1,5 +1,10 @@
 import UIKit
 
+// Hooking veya diğer mod dosyalarının erişebilmesi için ana Preferences sınıfı (Sadece Bedava Satın Alma aktif)
+public struct Preferences {
+    public static var isFreePurchaseEnabled: Bool = false
+}
+
 struct AlertHelper {
     static func show(title: String, message: String) {
         DispatchQueue.main.async {
@@ -188,6 +193,7 @@ class NativeMenuViewWrapper: UIView {
     
     @objc private func freePurchaseTapped() {
         isFreePurchaseEnabled.toggle()
+        Preferences.isFreePurchaseEnabled = isFreePurchaseEnabled
         
         if isFreePurchaseEnabled {
             freePurchaseButton.setTitle("Bedava Satın Alma: Açık", for: .normal)
