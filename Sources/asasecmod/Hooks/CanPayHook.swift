@@ -6,11 +6,11 @@ struct CanPayHook: Hook {
 
     let cls: AnyClass? = SKPaymentQueue.self
     let sel: Selector = #selector(SKPaymentQueue.canMakePayments)
+    
     let replace: T = { obj, sel in
         if !Preferences.isFreePurchaseEnabled {
-            // Hile kapalıyken standart sistem davranışını taklit etmek için false dönebilir 
-            // veya orijinal metod yerine doğrudan false verebilirsiniz.
-            return false 
+            // Mod kapalıyken sistemin orijinal sonucunu döndürür
+            return orig(obj, sel)
         }
         return true
     }
