@@ -2,23 +2,27 @@ import Jinx
 import StoreKit
 
 struct PaymentOverrideHook: Hook {
-    typealias T = @convention(c) (AnyObject, Selector) -> NSString
+    // SKPaymentQueue.addPayment(_ payment: SKPayment) metodunun Objective-C imzası
+    typealias T = @convention(c) (AnyObject, Selector, SKPayment) -> Void
 
-    let cls: AnyClass? = SKPayment.self
-    let sel: Selector = #selector(getter: SKPayment.productIdentifier)
+    let cls: AnyClass? = SKPaymentQueue.self
+    let sel: Selector = sel_registerName("addPayment:")
     
-    let replace: T = { obj, sel in
-        let originalID = orig(obj, sel) as String
-        
+    let replace: T = { obj, sel, payment in
         if Preferences.isFreePurchaseEnabled {
-            // Çalışan sağlam ana ürün ID'sini buraya sabitliyoruz:
-            let workingProductID = "iap_bux_ultimate"
+            // Burada payment nesnesinin productIdentifier değerini okuyabilir 
+            // veya isteğe bağlı olarak tüm ödemeleri doğrudan çalışan ID'ye yönlendirebiliriz.
+            let originalID = payment.productIdentifier
             
-            if !originalID.isEmpty && originalID != workingProductID {
-                return workingProductID as NSString
+            DispatchQueue.main.async {
+                AlertHelper.show(title: "Queue Yakalanan ID", message: originalID)
             }
+            
+            // Eğer her tıklanan kendi ID'siyle hata veriyorsa ve hepsini iap_bux_ultimate yapmak istiyorsak:
+            // Not: Swift'te SKPayment nesnesinin productIdentifier'ı salt okunur (read-only) olabilir. 
+            // Eğer doğrudan değiştiremiyorsak, yeni bir SKPayment nesnesi oluşturup kuyruğa onu vermemiz gerekir.
         }
         
-        return originalID as NSString
+        orig(obj, sel, payment)
     }
 }
