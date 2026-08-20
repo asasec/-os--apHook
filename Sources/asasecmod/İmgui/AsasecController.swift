@@ -3,13 +3,11 @@ import UIKit
 struct AlertHelper {
     static func show(title: String, message: String) {
         DispatchQueue.main.async {
-            // Aktif olan pencereyi ve ana ViewController'ı buluyoruz
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
                   let rootVC = window.rootViewController else {
                 return
             }
             
-            // Eğer rootVC üstünde başka bir pencere/modal açıksa en üsttekini bul
             var topController = rootVC
             while let presented = topController.presentedViewController {
                 topController = presented
@@ -49,10 +47,12 @@ public class AsasecController: UIViewController {
 class NativeMenuViewWrapper: UIView {
     private var mobileMenuWindow: UIView!
     private var floatingIcon: UIButton!
+    private var customConfigView: CustomConfigView?
     
-    // Bedava Satın Alma butonunun durum değişkeni (Başlangıçta kapalı: false)
     private var isFreePurchaseEnabled: Bool = false
     private var freePurchaseButton: UIButton!
+    
+    private var isModHiddenUntilRestart: Bool = false
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -65,8 +65,7 @@ class NativeMenuViewWrapper: UIView {
     }
     
     private func setupUI() {
-        // Menü penceresinin yüksekliği yeni buton sığması için 230 yapıldı
-        mobileMenuWindow = UIView(frame: CGRect(x: 50, y: 80, width: 270, height: 230))
+        mobileMenuWindow = UIView(frame: CGRect(x: 50, y: 80, width: 270, height: 270))
         mobileMenuWindow.backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 0.97)
         mobileMenuWindow.layer.cornerRadius = 16.0
         mobileMenuWindow.layer.borderWidth = 1.5
@@ -105,23 +104,28 @@ class NativeMenuViewWrapper: UIView {
         closeBtn.addTarget(self, action: #selector(minimizeMenu), for: .touchUpInside)
         titleBar.addSubview(closeBtn)
         
-        // --- 0. En Üstteki Yeni Buton: Bedava Satın Alma ---
+        // 0. Bedava Satın Alma Butonu
         freePurchaseButton = createButton(frame: CGRect(x: 18, y: 48, width: 234, height: 32), title: "Bedava Satın Alma: Kapalı", color: UIColor.red)
         freePurchaseButton.addTarget(self, action: #selector(freePurchaseTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(freePurchaseButton)
         
-        // --- 1. Bypass Butonu ---
-        let bypassiap = createButton(frame: CGRect(x: 18, y: 86, width: 234, height: 32), title: "🔍 Bypass / Sorun Giderme", color: UIColor(red: 0.80, green: 0.40, blue: 0.10, alpha: 1.0))
+        // Özel Yapılandırma Tuşu
+        let customConfigBtn = createButton(frame: CGRect(x: 18, y: 86, width: 234, height: 32), title: "Özel Yapılandırma", color: UIColor(red: 0.25, green: 0.45, blue: 0.75, alpha: 1.0))
+        customConfigBtn.addTarget(self, action: #selector(customConfigTapped), for: .touchUpInside)
+        mobileMenuWindow.addSubview(customConfigBtn)
+        
+        // 1. Bypass Butonu
+        let bypassiap = createButton(frame: CGRect(x: 18, y: 124, width: 234, height: 32), title: "🔍 Bypass / Sorun Giderme", color: UIColor(red: 0.80, green: 0.40, blue: 0.10, alpha: 1.0))
         bypassiap.addTarget(self, action: #selector(bypassiapTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(bypassiap)
         
-        // --- 2. Bilgi Butonu ---
-        let bilgiverbize = createButton(frame: CGRect(x: 18, y: 124, width: 234, height: 32), title: "💡 Mod Hakkında & Bilgi", color: UIColor(red: 0.50, green: 0.20, blue: 0.60, alpha: 1.0))
+        // 2. Bilgi Butonu
+        let bilgiverbize = createButton(frame: CGRect(x: 18, y: 162, width: 234, height: 32), title: "💡 Mod Hakkında & Bilgi", color: UIColor(red: 0.50, green: 0.20, blue: 0.60, alpha: 1.0))
         bilgiverbize.addTarget(self, action: #selector(bilgiverbizeTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(bilgiverbize)
 
-        // --- 3. Modu Gizle Butonu ---
-        let modugizle = createButton(frame: CGRect(x: 18, y: 162, width: 234, height: 32), title: "⚙️ Modu Gizle", color: UIColor(red: 0.30, green: 0.50, blue: 0.30, alpha: 1.0))
+        // 3. Modu Gizle Butonu
+        let modugizle = createButton(frame: CGRect(x: 18, y: 200, width: 234, height: 32), title: "⚙️ Modu Gizle", color: UIColor(red: 0.30, green: 0.50, blue: 0.30, alpha: 1.0))
         modugizle.addTarget(self, action: #selector(modugizleTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(modugizle)
         
@@ -172,33 +176,44 @@ class NativeMenuViewWrapper: UIView {
     @objc private func minimizeMenu() {
         mobileMenuWindow.isHidden = true
         floatingIcon.center = mobileMenuWindow.center
-        floatingIcon.isHidden = false
+        floatingIcon.isHidden = isModHiddenUntilRestart
     }
     
     @objc private func restoreMenu() {
+        guard !isModHiddenUntilRestart else { return }
         floatingIcon.isHidden = true
         mobileMenuWindow.center = floatingIcon.center
         mobileMenuWindow.isHidden = false
     }
     
-    // Yeni eklenen Bedava Satın Alma butonunun aksiyonu
     @objc private func freePurchaseTapped() {
-    isFreePurchaseEnabled.toggle()
-    
-    // Durumu Preferences sınıfına aktarıyoruz
-    Preferences.isFreePurchaseEnabled = isFreePurchaseEnabled
-    
-    if isFreePurchaseEnabled {
-        freePurchaseButton.setTitle("Bedava Satın Alma: Açık", for: .normal)
-        freePurchaseButton.backgroundColor = UIColor.green
-        AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Açık")
-    } else {
-        freePurchaseButton.setTitle("Bedava Satın Alma: Kapalı", for: .normal)
-        freePurchaseButton.backgroundColor = UIColor.red
-        AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Kapalı")
+        isFreePurchaseEnabled.toggle()
+        
+        if isFreePurchaseEnabled {
+            freePurchaseButton.setTitle("Bedava Satın Alma: Açık", for: .normal)
+            freePurchaseButton.backgroundColor = UIColor.green
+            AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Açık")
+        } else {
+            freePurchaseButton.setTitle("Bedava Satın Alma: Kapalı", for: .normal)
+            freePurchaseButton.backgroundColor = UIColor.red
+            AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma Kapalı")
+        }
     }
-}
-
+    
+    @objc private func customConfigTapped() {
+        mobileMenuWindow.isHidden = true
+        
+        let configView = CustomConfigView(frame: self.bounds)
+        configView.center = mobileMenuWindow.center
+        configView.onBackTapped = { [weak self, weak configView] in
+            configView?.removeFromSuperview()
+            self?.customConfigView = nil
+            self?.mobileMenuWindow.isHidden = false
+        }
+        
+        addSubview(configView)
+        self.customConfigView = configView
+    }
     
     @objc private func bypassiapTapped() { 
         abort()
@@ -209,7 +224,8 @@ class NativeMenuViewWrapper: UIView {
     }
     
     @objc private func modugizleTapped() { 
+        isModHiddenUntilRestart = true
         mobileMenuWindow.isHidden = true
-        floatingIcon.isHidden = false
+        floatingIcon.isHidden = true
     }
 }
