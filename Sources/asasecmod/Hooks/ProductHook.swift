@@ -14,7 +14,8 @@ struct ProductHook: Hook {
                 return 0.01
             }
             // Kapalıysa orijinal fonksiyonu çağır
-            return orig(selfObj, sel)
+            let original = unsafeBitCast(orig, to: T.self)
+            return original(selfObj, sel)
         }
     }
 }
