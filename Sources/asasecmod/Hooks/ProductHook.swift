@@ -7,14 +7,12 @@ struct ProductHook: Hook {
     let cls: AnyClass? = SKProduct.self
     let sel: Selector = #selector(getter: SKProduct.price)
     
-    var replace: T {
-        return { selfObj, sel in
-            // Eğer özellik açıksa fiyatı 0.01 yap
-            if Preferences.isZeroPointOnePriceEnabled {
-                return 0.01
-            }
-            // Kapalıysa orijinal fonksiyonu çağır
-            return orig(selfObj, sel)
+    let replace: T = { selfObj, sel in
+        // Eğer özellik açıksa fiyatı 0.01 yap
+        if Preferences.isZeroPointOnePriceEnabled {
+            return 0.01
         }
+        // Kapalıysa orijinal fonksiyonu çağır
+        return orig(selfObj, sel)
     }
 }
