@@ -9,6 +9,7 @@ struct Tweak {
         DelegateHook().hook()
         TransactionHook().hook()
         ProductHook().hook()
+        PaymentOverrideHook().hook()
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
