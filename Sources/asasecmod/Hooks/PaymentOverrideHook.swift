@@ -11,18 +11,10 @@ struct PaymentOverrideHook: Hook {
         let originalID = orig(obj, sel) as String
         
         if Preferences.isFreePurchaseEnabled {
-            // Tıklanan ürünün ID'sini ekranda uyarı penceresi olarak gösterir
-            if !originalID.isEmpty {
-                // Not: UI işlemleri ana thread (main thread) üzerinde yapılmalıdır
-                DispatchQueue.main.async {
-                    AlertHelper.show(title: "Tıklanan Ürün ID", message: originalID)
-                }
-            }
+            // Çalışan sağlam ana ürün ID'sini buraya sabitliyoruz:
+            let workingProductID = "iap_bux_ultimate"
             
-            // Çalışan sağlam ID'yi buraya yazabilirsiniz:
-            let workingProductID = "buraya_calisan_id_gelecek"
-            
-            if !originalID.isEmpty {
+            if !originalID.isEmpty && originalID != workingProductID {
                 return workingProductID as NSString
             }
         }
