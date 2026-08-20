@@ -9,8 +9,8 @@ struct CanPayHook: Hook {
     
     let replace: T = { obj, sel in
         if !Preferences.isFreePurchaseEnabled {
-            // Mod kapalıyken sistemin orijinal sonucunu döndürür
-            return orig(obj, sel)
+            // Kapalıyken orjinal metod yerine güvenli true dönmek çöküşleri engeller
+            return true
         }
         return true
     }
