@@ -1,7 +1,7 @@
 import StoreKit
 
 final class AsasecDelegate: NSObject, SKProductsRequestDelegate {
-    static let shared: SatellaDelegate = .init()
+    static let shared: AsasecDelegate = .init()
     var delegates: [SKProductsRequestDelegate] = []
     var products: [SKProduct] = []
     
