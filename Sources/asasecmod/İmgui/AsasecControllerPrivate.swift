@@ -47,7 +47,7 @@ class CustomConfigView: UIView {
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
         
-        // 1. Açma Kapama Butonu
+        // 1. Açma Kapama Butonu (Preferences bağımsız)
         toggleButton = UIButton(type: .system)
         toggleButton.frame = CGRect(x: 18, y: 56, width: 234, height: 36)
         toggleButton.backgroundColor = UIColor.red
@@ -79,6 +79,7 @@ class CustomConfigView: UIView {
     
     @objc private func toggleTapped() {
         isFeatureEnabled.toggle()
+        
         if isFeatureEnabled {
             toggleButton.setTitle("Özellik: Açıldı", for: .normal)
             toggleButton.backgroundColor = UIColor.green
