@@ -7,7 +7,7 @@ struct DelegateHook: Hook {
     let cls: AnyClass? = SKProductsRequest.self
     let sel: Selector = sel_registerName("setDelegate:")
     let replace: T = { obj, sel, delegate in
-        let tella: SatellaDelegate = .shared
+        let tella: AsasecDelegate = .shared
         tella.delegates.append(delegate)
         orig(obj, sel, tella)
     }
