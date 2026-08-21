@@ -57,7 +57,7 @@ class NativeMenuViewWrapper: UIView {
         super.init(frame: frame)
         self.backgroundColor = .clear
         
-        // Kayıtlı tercihleri yükle
+        // Bedava satın alma tercihi kalıcı olarak yüklenir
         self.isFreePurchaseEnabled = UserDefaults.standard.bool(forKey: "Preferences_FreePurchase")
         
         setupUI()
@@ -79,9 +79,7 @@ class NativeMenuViewWrapper: UIView {
         mobileMenuWindow.layer.shadowRadius = 10.0
         mobileMenuWindow.clipsToBounds = false
         
-        // Eğer daha önce ayarlardan mod gizlendiyse başlangıçta kapalı gelsin
-        let isHiddenPref = UserDefaults.standard.bool(forKey: "AsasecHideMenuPref")
-        mobileMenuWindow.isHidden = isHiddenPref
+        mobileMenuWindow.isHidden = true
         addSubview(mobileMenuWindow)
         
         let menuPan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
@@ -110,7 +108,7 @@ class NativeMenuViewWrapper: UIView {
         closeBtn.addTarget(self, action: #selector(minimizeMenu), for: .touchUpInside)
         titleBar.addSubview(closeBtn)
         
-        // 1. Bedava Satın Alma Butonu (Aç/Kapa)
+        // 1. Bedava Satın Alma Butonu
         freePurchaseButton = createButton(frame: CGRect(x: 18, y: 48, width: 234, height: 32), title: "", color: .red)
         updateFreePurchaseUI()
         freePurchaseButton.addTarget(self, action: #selector(freePurchaseTapped), for: .touchUpInside)
@@ -131,9 +129,9 @@ class NativeMenuViewWrapper: UIView {
         bilgiverbize.addTarget(self, action: #selector(bilgiverbizeTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(bilgiverbize)
 
-        // Yüzen Simge (Floating Icon)
+        // Yüzen Simge (Oyunda ilk açılışta görünür)
         floatingIcon = UIButton(type: .system)
-        floatingIcon.frame = CGRect(x: 40, y: 100, width: 54, height: 54)
+        floatingIcon.frame = CGRect(x: 50, y: 80, width: 54, height: 54)
         floatingIcon.backgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.13, alpha: 0.92)
         floatingIcon.setTitle("📦", for: .normal)
         floatingIcon.titleLabel?.font = UIFont.systemFont(ofSize: 28)
@@ -144,7 +142,7 @@ class NativeMenuViewWrapper: UIView {
         floatingIcon.layer.shadowOffset = CGSize(width: 0, height: 4)
         floatingIcon.layer.shadowOpacity = 0.6
         floatingIcon.layer.shadowRadius = 8.0
-        floatingIcon.isHidden = !isHiddenPref
+        floatingIcon.isHidden = false
         floatingIcon.addTarget(self, action: #selector(restoreMenu), for: .touchUpInside)
         addSubview(floatingIcon)
         
@@ -202,7 +200,11 @@ class NativeMenuViewWrapper: UIView {
     @objc private func freePurchaseTapped() {
         isFreePurchaseEnabled.toggle()
         Preferences.isFreePurchaseEnabled = isFreePurchaseEnabled
+        
+        // Seçim kalıcı olarak kaydedilir (oyundan çıkıp girilse bile silinmez)
         UserDefaults.standard.set(isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
+        UserDefaults.standard.synchronize()
+        
         updateFreePurchaseUI()
         
         let status = isFreePurchaseEnabled ? "Açık" : "Kapalı"
@@ -210,38 +212,51 @@ class NativeMenuViewWrapper: UIView {
     }
     
     @objc private func customConfigTapped() {
+        let currentCenter = mobileMenuWindow.center
         mobileMenuWindow.isHidden = true
         
-        let configView = CustomConfigView(frame: self.bounds)
-        configView.center = mobileMenuWindow.center
+        let configView = CustomConfigView(frame: CGRect(x: 0, y: 0, width: 270, height: 230))
+        configView.center = currentCenter
+        
         configView.onBackTapped = { [weak self, weak configView] in
             configView?.removeFromSuperview()
             self?.customConfigView = nil
+            self?.mobileMenuWindow.center = configView?.center ?? self?.mobileMenuWindow.center ?? .zero
             self?.mobileMenuWindow.isHidden = false
         }
+        
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        configView.addGestureRecognizer(pan)
         
         addSubview(configView)
         self.customConfigView = configView
     }
     
     @objc private func settingsTapped() {
+        let currentCenter = mobileMenuWindow.center
         mobileMenuWindow.isHidden = true
         
-        let sView = AsasecSettingsView(frame: self.bounds)
-        sView.center = mobileMenuWindow.center
+        let sView = AsasecSettingsView(frame: CGRect(x: 0, y: 0, width: 270, height: 170))
+        sView.center = currentCenter
+        
+        // Geri Dön Butonuna Basıldığında
         sView.onBackTapped = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
-            
-            // Eğer ayarlardan mod gizle seçeneği aktif edildiyse menüyü kapalı tut
-            let isHiddenPref = UserDefaults.standard.bool(forKey: "AsasecHideMenuPref")
-            if isHiddenPref {
-                self?.mobileMenuWindow.isHidden = true
-                self?.floatingIcon.isHidden = true
-            } else {
-                self?.mobileMenuWindow.isHidden = false
-            }
+            self?.mobileMenuWindow.center = sView?.center ?? self?.mobileMenuWindow.center ?? .zero
+            self?.mobileMenuWindow.isHidden = false
         }
+        
+        // Modu Gizle Butonuna Basıldığında (Hem menü hem yüzen kutu tamamen gizlenir)
+        sView.onHideMenuRequested = { [weak self, weak sView] in
+            sView?.removeFromSuperview()
+            self?.settingsView = nil
+            self?.mobileMenuWindow.isHidden = true
+            self?.floatingIcon.isHidden = true // Yüzen simge de tamamen gizlendi
+        }
+        
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
+        sView.addGestureRecognizer(pan)
         
         addSubview(sView)
         self.settingsView = sView
