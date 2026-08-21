@@ -52,6 +52,10 @@ class CustomConfigView: UIView {
         
         toggleButton = UIButton(type: .system)
         toggleButton.frame = CGRect(x: 18, y: 56, width: 234, height: 36)
+        
+        // Yazı rengi her iki durumda da net okunması için beyaz yapıldı
+        toggleButton.setTitleColor(.white, for: .normal)
+        
         updateToggleButtonUI()
         toggleButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
         toggleButton.layer.cornerRadius = 6.0
@@ -73,11 +77,13 @@ class CustomConfigView: UIView {
     private func updateToggleButtonUI() {
         if isFeatureEnabled {
             toggleButton.setTitle("Fiyatı 0.01 Yap: Açık", for: .normal)
-            toggleButton.backgroundColor = UIColor.green
+            toggleButton.backgroundColor = UIColor.systemGreen
         } else {
             toggleButton.setTitle("Fiyatı 0.01 Yap: Kapalı", for: .normal)
-            toggleButton.backgroundColor = UIColor.red
+            toggleButton.backgroundColor = UIColor.systemRed
         }
+        // Renk ayarının her değişimde kaybolmaması için garantiye alıyoruz
+        toggleButton.setTitleColor(.white, for: .normal)
     }
     
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
