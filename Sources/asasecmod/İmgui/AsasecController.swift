@@ -1,6 +1,7 @@
 import UIKit
 
-final class MainMenuViewController: UIViewController {
+final class AsasecController: UIViewController {
+    static let shared: AsasecController = .init()
 
     private let freePurchaseSwitch = UISwitch()
 
@@ -22,7 +23,6 @@ final class MainMenuViewController: UIViewController {
         let freePurchaseRow = createRow(title: "Bedava Satın Alma", control: freePurchaseSwitch)
         stackView.addArrangedSubview(freePurchaseRow)
         
-        // Kayıtlı Bedava Satın Alma tercihini yükle
         freePurchaseSwitch.isOn = UserDefaults.standard.bool(forKey: "Preferences_FreePurchase")
         freePurchaseSwitch.addTarget(self, action: #selector(freePurchaseChanged(_:)), for: .valueChanged)
 
@@ -54,7 +54,6 @@ final class MainMenuViewController: UIViewController {
         label.textColor = .white
         label.font = UIFont.systemFont(ofSize: 15, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
-        
         control.translatesAutoresizingMaskIntoConstraints = false
         
         row.addSubview(label)
@@ -86,22 +85,24 @@ final class MainMenuViewController: UIViewController {
     }
 
     @objc private func openCustomConfig() {
-        // Sola kaymayı önlemek için crossDissolve geçiş efekti kullanıyoruz
-        let configVC = CustomConfigViewController() // Kendi özel yapılandırma sınıf adınız
-        configVC.modalPresentationStyle = .overCurrentContext
-        configVC.modalTransitionStyle = .crossDissolve
-        present(configVC, animated: true, completion: nil)
+        // Özel yapılandırma için UIView tabanlı CustomConfigView kullanılıyorsa pencere olarak ekliyoruz
+        let configView = CustomConfigView(frame: self.view.bounds)
+        configView.onBackTapped = { [weak configView] in
+            configView?.removeFromSuperview()
+        }
+        self.view.addSubview(configView)
     }
 
     @objc private func openSettings() {
-        // Sola kaymayı önleyerek aynı konumda yumuşak geçişle açılır
         let settingsVC = AsasecSettingsViewController()
-        settingsVC.modalPresentationStyle = .overCurrentContext
-        settingsVC.modalTransitionStyle = .crossDissolve
+        settingsVC.modalPresentationStyle = UIModalPresentationStyle.overCurrentContext
+        settingsVC.modalTransitionStyle = UIModalTransitionStyle.crossDissolve
         present(settingsVC, animated: true, completion: nil)
     }
 
     @objc private func openAbout() {
-        // Mod hakkında bilgi ekranı
+        let alert = UIAlertController(title: "Mod Hakkında", message: "Bu mod Asasec tarafından geliştirilmiştir.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Tamam", style: .default))
+        present(alert, animated: true)
     }
 }
