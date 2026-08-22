@@ -118,6 +118,7 @@ jobs:
           echo "Generated packages"
           echo "========================================"
 
+          mv packages/*.deb packages/@asasec-StoreKitHook.deb
           ls -lah packages/
 
       - name: Upload Artifact
