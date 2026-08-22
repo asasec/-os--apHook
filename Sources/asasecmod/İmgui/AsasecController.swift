@@ -47,7 +47,7 @@ public class AsasecController: UIViewController {
 class NativeMenuViewWrapper: UIView {
     private var mobileMenuWindow: UIView!
     private var floatingIcon: UIButton!
-    private var customConfigView: CustomConfigView?
+    private var customConfigView: AsasecControllerPrivate?
     private var settingsView: AsasecSettingsView?
     
     private var freePurchaseButton: UIButton!
@@ -56,7 +56,6 @@ class NativeMenuViewWrapper: UIView {
         super.init(frame: frame)
         self.backgroundColor = .clear
         
-        // Sadece daha önceden "Seçenekleri Kaydet" butonuna basılıp kaydedilmiş bir veri varsa yüklenir.
         if let savedFreePurchase = UserDefaults.standard.object(forKey: "Preferences_FreePurchase") as? Bool {
             Preferences.isFreePurchaseEnabled = savedFreePurchase
         } else {
@@ -215,13 +214,12 @@ class NativeMenuViewWrapper: UIView {
         let currentCenter = mobileMenuWindow.center
         mobileMenuWindow.isHidden = true
         
-        let configView = CustomConfigView(frame: CGRect(x: 0, y: 0, width: 270, height: 230))
+        let configView = AsasecControllerPrivate(frame: CGRect(x: 0, y: 0, width: 270, height: 230))
         configView.center = currentCenter
         
         configView.onBackTapped = { [weak self, weak configView] in
             configView?.removeFromSuperview()
             self?.customConfigView = nil
-            // Sağ alta kayma problemi tamamen giderildi
             self?.mobileMenuWindow.center = configView?.center ?? currentCenter
             self?.mobileMenuWindow.isHidden = false
         }
@@ -240,7 +238,6 @@ class NativeMenuViewWrapper: UIView {
         let sView = AsasecSettingsView(frame: CGRect(x: 0, y: 0, width: 270, height: 190))
         sView.center = currentCenter
         
-        // 1. Geri Dön
         sView.onBackTapped = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
@@ -248,7 +245,6 @@ class NativeMenuViewWrapper: UIView {
             self?.mobileMenuWindow.isHidden = false
         }
         
-        // 2. Sadece "Seçenekleri Kaydet" butonuna basıldığında UserDefaults'a kalıcı olarak yazılır
         sView.onSaveRequested = {
             UserDefaults.standard.set(Preferences.isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
             UserDefaults.standard.set(Preferences.isZeroPointOnePriceEnabled, forKey: "Preferences_ZeroPointOne")
@@ -257,7 +253,6 @@ class NativeMenuViewWrapper: UIView {
             AlertHelper.show(title: "⚙️ Ayarlar", message: "Seçenekler başarıyla kaydedildi!")
         }
         
-        // 3. Modu Gizle
         sView.onHideMenuRequested = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
