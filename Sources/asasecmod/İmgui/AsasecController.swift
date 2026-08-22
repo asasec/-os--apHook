@@ -55,8 +55,6 @@ class NativeMenuViewWrapper: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .clear
-        
-        // Otomatik okuma kaldırıldı; mod doğrudan Preferences değerleri ile çalışır.
         setupUI()
     }
     
@@ -195,7 +193,6 @@ class NativeMenuViewWrapper: UIView {
     }
     
     @objc private func freePurchaseTapped() {
-        // Mod içinde anlık olarak değiştirilir, butona ve moda hemen yansır
         Preferences.isFreePurchaseEnabled.toggle()
         updateFreePurchaseUI()
     }
@@ -205,7 +202,7 @@ class NativeMenuViewWrapper: UIView {
         mobileMenuWindow.isHidden = true
         
         let configView = CustomConfigView(frame: CGRect(x: 0, y: 0, width: 270, height: 230))
-        configView.center = currentCenter
+        configView.center = currentCenter // Menünün mevcut konumuna sabitlenir
         
         configView.onBackTapped = { [weak self, weak configView] in
             configView?.removeFromSuperview()
@@ -226,7 +223,7 @@ class NativeMenuViewWrapper: UIView {
         mobileMenuWindow.isHidden = true
         
         let sView = AsasecSettingsView(frame: CGRect(x: 0, y: 0, width: 270, height: 190))
-        sView.center = currentCenter
+        sView.center = currentCenter // Menünün mevcut konumuna sabitlenir
         
         // 1. Geri Dön
         sView.onBackTapped = { [weak self, weak sView] in
