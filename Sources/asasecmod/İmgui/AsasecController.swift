@@ -55,6 +55,20 @@ class NativeMenuViewWrapper: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .clear
+        
+        // Sadece daha önceden "Seçenekleri Kaydet" butonuna basılıp kaydedilmiş bir veri varsa yüklenir.
+        if let savedFreePurchase = UserDefaults.standard.object(forKey: "Preferences_FreePurchase") as? Bool {
+            Preferences.isFreePurchaseEnabled = savedFreePurchase
+        } else {
+            Preferences.isFreePurchaseEnabled = false
+        }
+        
+        if let savedZeroPointOne = UserDefaults.standard.object(forKey: "Preferences_ZeroPointOne") as? Bool {
+            Preferences.isZeroPointOnePriceEnabled = savedZeroPointOne
+        } else {
+            Preferences.isZeroPointOnePriceEnabled = false
+        }
+        
         setupUI()
     }
     
@@ -207,7 +221,8 @@ class NativeMenuViewWrapper: UIView {
         configView.onBackTapped = { [weak self, weak configView] in
             configView?.removeFromSuperview()
             self?.customConfigView = nil
-            self?.mobileMenuWindow.center = configView?.center ?? self?.mobileMenuWindow.center ?? .zero
+            // Sağ alta kayma problemi tamamen giderildi
+            self?.mobileMenuWindow.center = configView?.center ?? currentCenter
             self?.mobileMenuWindow.isHidden = false
         }
         
@@ -229,11 +244,11 @@ class NativeMenuViewWrapper: UIView {
         sView.onBackTapped = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
-            self?.mobileMenuWindow.center = sView?.center ?? self?.mobileMenuWindow.center ?? .zero
+            self?.mobileMenuWindow.center = sView?.center ?? currentCenter
             self?.mobileMenuWindow.isHidden = false
         }
         
-        // 2. Seçenekleri Kaydet Butonu (Uyarı olmaması için [weak self] kaldırıldı, doğrudan statik değerler kaydediliyor)
+        // 2. Sadece "Seçenekleri Kaydet" butonuna basıldığında UserDefaults'a kalıcı olarak yazılır
         sView.onSaveRequested = {
             UserDefaults.standard.set(Preferences.isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
             UserDefaults.standard.set(Preferences.isZeroPointOnePriceEnabled, forKey: "Preferences_ZeroPointOne")
