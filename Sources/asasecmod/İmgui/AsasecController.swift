@@ -202,7 +202,7 @@ class NativeMenuViewWrapper: UIView {
         mobileMenuWindow.isHidden = true
         
         let configView = CustomConfigView(frame: CGRect(x: 0, y: 0, width: 270, height: 230))
-        configView.center = currentCenter // Menünün mevcut konumuna sabitlenir
+        configView.center = currentCenter
         
         configView.onBackTapped = { [weak self, weak configView] in
             configView?.removeFromSuperview()
@@ -223,7 +223,7 @@ class NativeMenuViewWrapper: UIView {
         mobileMenuWindow.isHidden = true
         
         let sView = AsasecSettingsView(frame: CGRect(x: 0, y: 0, width: 270, height: 190))
-        sView.center = currentCenter // Menünün mevcut konumuna sabitlenir
+        sView.center = currentCenter
         
         // 1. Geri Dön
         sView.onBackTapped = { [weak self, weak sView] in
@@ -233,10 +233,8 @@ class NativeMenuViewWrapper: UIView {
             self?.mobileMenuWindow.isHidden = false
         }
         
-        // 2. Sadece "Seçenekleri Kaydet" butonuna basıldığında UserDefaults'a kalıcı olarak yazılır
-        sView.onSaveRequested = { [weak self] in
-            guard let self = self else { return }
-            
+        // 2. Seçenekleri Kaydet Butonu (Uyarı olmaması için [weak self] kaldırıldı, doğrudan statik değerler kaydediliyor)
+        sView.onSaveRequested = {
             UserDefaults.standard.set(Preferences.isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
             UserDefaults.standard.set(Preferences.isZeroPointOnePriceEnabled, forKey: "Preferences_ZeroPointOne")
             UserDefaults.standard.synchronize()
