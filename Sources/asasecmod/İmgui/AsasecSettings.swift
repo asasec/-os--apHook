@@ -3,6 +3,7 @@ import UIKit
 class AsasecSettingsView: UIView {
     var onBackTapped: (() -> Void)?
     var onHideMenuRequested: (() -> Void)?
+    var onSaveRequested: (() -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -38,9 +39,20 @@ class AsasecSettingsView: UIView {
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
         
-        // 1. Modu Gizle Butonu (Tüm arayüzü tamamen gizler)
+        // 1. Seçenekleri Kaydet Butonu
+        let saveButton = UIButton(type: .system)
+        saveButton.frame = CGRect(x: 18, y: 52, width: 234, height: 36)
+        saveButton.backgroundColor = UIColor(red: 0.20, green: 0.50, blue: 0.80, alpha: 1.0)
+        saveButton.setTitle("Seçenekleri Kaydet", for: .normal)
+        saveButton.setTitleColor(.white, for: .normal)
+        saveButton.titleLabel?.font = UIFont.boldSystemFont(ofSize: 13)
+        saveButton.layer.cornerRadius = 6.0
+        saveButton.addTarget(self, action: #selector(saveTapped), for: .touchUpInside)
+        addSubview(saveButton)
+        
+        // 2. Modu Gizle Butonu
         let hideMenuButton = UIButton(type: .system)
-        hideMenuButton.frame = CGRect(x: 18, y: 56, width: 234, height: 40)
+        hideMenuButton.frame = CGRect(x: 18, y: 98, width: 234, height: 36)
         hideMenuButton.backgroundColor = UIColor(red: 0.85, green: 0.30, blue: 0.30, alpha: 1.0)
         hideMenuButton.setTitle("🙈 Modu Gizle", for: .normal)
         hideMenuButton.setTitleColor(.white, for: .normal)
@@ -49,9 +61,9 @@ class AsasecSettingsView: UIView {
         hideMenuButton.addTarget(self, action: #selector(hideMenuTapped), for: .touchUpInside)
         addSubview(hideMenuButton)
         
-        // 2. Geri Dön Butonu
+        // 3. Geri Dön Butonu
         let backButton = UIButton(type: .system)
-        backButton.frame = CGRect(x: 18, y: 110, width: 234, height: 40)
+        backButton.frame = CGRect(x: 18, y: 144, width: 234, height: 36)
         backButton.backgroundColor = UIColor(red: 0.20, green: 0.20, blue: 0.25, alpha: 1.0)
         backButton.setTitle("Geri Dön", for: .normal)
         backButton.setTitleColor(.white, for: .normal)
@@ -61,8 +73,11 @@ class AsasecSettingsView: UIView {
         addSubview(backButton)
     }
     
+    @objc private func saveTapped() {
+        onSaveRequested?()
+    }
+    
     @objc private func hideMenuTapped() {
-        // Tamamen gizleme sinyalini gönder
         onHideMenuRequested?()
     }
     
