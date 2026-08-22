@@ -57,8 +57,11 @@ class NativeMenuViewWrapper: UIView {
         super.init(frame: frame)
         self.backgroundColor = .clear
         
-        // Bedava satın alma tercihi kalıcı olarak yüklenir
+        // Uygulama açılışında kayıtlı tercihler okunur ve yüklenir
         self.isFreePurchaseEnabled = UserDefaults.standard.bool(forKey: "Preferences_FreePurchase")
+        Preferences.isFreePurchaseEnabled = self.isFreePurchaseEnabled
+        
+        Preferences.isZeroPointOnePriceEnabled = UserDefaults.standard.bool(forKey: "Preferences_ZeroPointOne")
         
         setupUI()
     }
@@ -129,7 +132,7 @@ class NativeMenuViewWrapper: UIView {
         bilgiverbize.addTarget(self, action: #selector(bilgiverbizeTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(bilgiverbize)
 
-        // Yüzen Simge (Oyunda ilk açılışta görünür)
+        // Oyun açılışında ilk görünecek yüzen simge (Kutu)
         floatingIcon = UIButton(type: .system)
         floatingIcon.frame = CGRect(x: 50, y: 80, width: 54, height: 54)
         floatingIcon.backgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.13, alpha: 0.92)
@@ -199,16 +202,7 @@ class NativeMenuViewWrapper: UIView {
     
     @objc private func freePurchaseTapped() {
         isFreePurchaseEnabled.toggle()
-        Preferences.isFreePurchaseEnabled = isFreePurchaseEnabled
-        
-        // Seçim kalıcı olarak kaydedilir (oyundan çıkıp girilse bile silinmez)
-        UserDefaults.standard.set(isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
-        UserDefaults.standard.synchronize()
-        
         updateFreePurchaseUI()
-        
-        let status = isFreePurchaseEnabled ? "Açık" : "Kapalı"
-        AlertHelper.show(title: "@asasecmod", message: "Bedava Satın Alma: \(status)")
     }
     
     @objc private func customConfigTapped() {
@@ -236,10 +230,10 @@ class NativeMenuViewWrapper: UIView {
         let currentCenter = mobileMenuWindow.center
         mobileMenuWindow.isHidden = true
         
-        let sView = AsasecSettingsView(frame: CGRect(x: 0, y: 0, width: 270, height: 170))
+        let sView = AsasecSettingsView(frame: CGRect(x: 0, y: 0, width: 270, height: 190))
         sView.center = currentCenter
         
-        // Geri Dön Butonuna Basıldığında
+        // 1. Geri Dön
         sView.onBackTapped = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
@@ -247,12 +241,26 @@ class NativeMenuViewWrapper: UIView {
             self?.mobileMenuWindow.isHidden = false
         }
         
-        // Modu Gizle Butonuna Basıldığında (Hem menü hem yüzen kutu tamamen gizlenir)
+        // 2. Seçenekleri Kaydet Butonu Tıklandığında
+        sView.onSaveRequested = { [weak self] in
+            guard let self = self else { return }
+            
+            Preferences.isFreePurchaseEnabled = self.isFreePurchaseEnabled
+            UserDefaults.standard.set(self.isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
+            
+            UserDefaults.standard.set(Preferences.isZeroPointOnePriceEnabled, forKey: "Preferences_ZeroPointOne")
+            
+            UserDefaults.standard.synchronize()
+            
+            AlertHelper.show(title: "⚙️ Ayarlar", message: "Seçenekler başarıyla kaydedildi!")
+        }
+        
+        // 3. Modu Gizle (Her ikisi de gizlenir, oyundan çıkıp girilince sıfırlanır)
         sView.onHideMenuRequested = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
             self?.mobileMenuWindow.isHidden = true
-            self?.floatingIcon.isHidden = true // Yüzen simge de tamamen gizlendi
+            self?.floatingIcon.isHidden = true
         }
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
