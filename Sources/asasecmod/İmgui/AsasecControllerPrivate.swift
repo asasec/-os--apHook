@@ -1,6 +1,6 @@
 import UIKit
 
-class CustomConfigView: UIView {
+class AsasecControllerPrivate: UIView {
     private var customWindow: UIView!
     private var isFeatureEnabled: Bool = false
     private var toggleButton: UIButton!
@@ -17,7 +17,7 @@ class CustomConfigView: UIView {
     }
     
     private func setupUI() {
-        customWindow = UIView(frame: CGRect(x: 50, y: 80, width: 270, height: 180))
+        customWindow = UIView(frame: CGRect(x: 0, y: 0, width: 270, height: 180))
         customWindow.backgroundColor = UIColor(red: 0.08, green: 0.08, blue: 0.10, alpha: 0.97)
         customWindow.layer.cornerRadius = 16.0
         customWindow.layer.borderWidth = 1.5
@@ -27,6 +27,8 @@ class CustomConfigView: UIView {
         customWindow.layer.shadowOpacity = 0.5
         customWindow.layer.shadowRadius = 10.0
         customWindow.clipsToBounds = false
+        
+        customWindow.center = CGPoint(x: frame.width / 2, y: frame.height / 2)
         addSubview(customWindow)
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
@@ -47,13 +49,10 @@ class CustomConfigView: UIView {
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
         
-        // Fiyatı 0.01 Yap Butonu (Başlangıç durumunu Preferences'tan alıyoruz)
         isFeatureEnabled = Preferences.isZeroPointOnePriceEnabled
         
         toggleButton = UIButton(type: .system)
         toggleButton.frame = CGRect(x: 18, y: 56, width: 234, height: 36)
-        
-        // Yazı rengi her iki durumda da net okunması için beyaz yapıldı
         toggleButton.setTitleColor(.white, for: .normal)
         
         updateToggleButtonUI()
@@ -62,7 +61,6 @@ class CustomConfigView: UIView {
         toggleButton.addTarget(self, action: #selector(toggleTapped), for: .touchUpInside)
         customWindow.addSubview(toggleButton)
         
-        // Geri Tuşu
         let backButton = UIButton(type: .system)
         backButton.frame = CGRect(x: 18, y: 104, width: 234, height: 36)
         backButton.backgroundColor = UIColor(red: 0.20, green: 0.20, blue: 0.25, alpha: 1.0)
@@ -82,14 +80,12 @@ class CustomConfigView: UIView {
             toggleButton.setTitle("Fiyatı 0.01 Yap: Kapalı", for: .normal)
             toggleButton.backgroundColor = UIColor.systemRed
         }
-        // Renk ayarının her değişimde kaybolmaması için garantiye alıyoruz
         toggleButton.setTitleColor(.white, for: .normal)
     }
     
     @objc private func handlePan(_ gesture: UIPanGestureRecognizer) {
-        guard let view = gesture.view else { return }
         let translation = gesture.translation(in: self)
-        view.center = CGPoint(x: view.center.x + translation.x, y: view.center.y + translation.y)
+        customWindow.center = CGPoint(x: customWindow.center.x + translation.x, y: customWindow.center.y + translation.y)
         gesture.setTranslation(.zero, in: self)
     }
     
