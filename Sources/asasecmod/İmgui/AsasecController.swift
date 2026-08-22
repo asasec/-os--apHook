@@ -50,19 +50,13 @@ class NativeMenuViewWrapper: UIView {
     private var customConfigView: CustomConfigView?
     private var settingsView: AsasecSettingsView?
     
-    private var isFreePurchaseEnabled: Bool = false
     private var freePurchaseButton: UIButton!
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.backgroundColor = .clear
         
-        // Uygulama açılışında kayıtlı tercihler okunur ve yüklenir
-        self.isFreePurchaseEnabled = UserDefaults.standard.bool(forKey: "Preferences_FreePurchase")
-        Preferences.isFreePurchaseEnabled = self.isFreePurchaseEnabled
-        
-        Preferences.isZeroPointOnePriceEnabled = UserDefaults.standard.bool(forKey: "Preferences_ZeroPointOne")
-        
+        // Otomatik okuma kaldırıldı; mod doğrudan Preferences değerleri ile çalışır.
         setupUI()
     }
     
@@ -132,7 +126,7 @@ class NativeMenuViewWrapper: UIView {
         bilgiverbize.addTarget(self, action: #selector(bilgiverbizeTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(bilgiverbize)
 
-        // Oyun açılışında ilk görünecek yüzen simge (Kutu)
+        // Yüzen Simge
         floatingIcon = UIButton(type: .system)
         floatingIcon.frame = CGRect(x: 50, y: 80, width: 54, height: 54)
         floatingIcon.backgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.13, alpha: 0.92)
@@ -165,7 +159,7 @@ class NativeMenuViewWrapper: UIView {
     }
     
     private func updateFreePurchaseUI() {
-        if isFreePurchaseEnabled {
+        if Preferences.isFreePurchaseEnabled {
             freePurchaseButton.setTitle("Bedava Satın Alma: Açık", for: .normal)
             freePurchaseButton.backgroundColor = UIColor.systemGreen
         } else {
@@ -201,7 +195,8 @@ class NativeMenuViewWrapper: UIView {
     }
     
     @objc private func freePurchaseTapped() {
-        isFreePurchaseEnabled.toggle()
+        // Mod içinde anlık olarak değiştirilir, butona ve moda hemen yansır
+        Preferences.isFreePurchaseEnabled.toggle()
         updateFreePurchaseUI()
     }
     
@@ -241,21 +236,18 @@ class NativeMenuViewWrapper: UIView {
             self?.mobileMenuWindow.isHidden = false
         }
         
-        // 2. Seçenekleri Kaydet Butonu Tıklandığında
+        // 2. Sadece "Seçenekleri Kaydet" butonuna basıldığında UserDefaults'a kalıcı olarak yazılır
         sView.onSaveRequested = { [weak self] in
             guard let self = self else { return }
             
-            Preferences.isFreePurchaseEnabled = self.isFreePurchaseEnabled
-            UserDefaults.standard.set(self.isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
-            
+            UserDefaults.standard.set(Preferences.isFreePurchaseEnabled, forKey: "Preferences_FreePurchase")
             UserDefaults.standard.set(Preferences.isZeroPointOnePriceEnabled, forKey: "Preferences_ZeroPointOne")
-            
             UserDefaults.standard.synchronize()
             
             AlertHelper.show(title: "⚙️ Ayarlar", message: "Seçenekler başarıyla kaydedildi!")
         }
         
-        // 3. Modu Gizle (Her ikisi de gizlenir, oyundan çıkıp girilince sıfırlanır)
+        // 3. Modu Gizle
         sView.onHideMenuRequested = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
