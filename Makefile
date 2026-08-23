@@ -8,10 +8,6 @@ TWEAK_NAME = Asasecİap
 # Sources/asasecmod altındaki tüm Swift dosyaları, KittyMemory C++ dosyaları ve load.s derlemeye dahil edildi
 Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
                       $(wildcard Sources/asasecmod/**/*.swift) \
-                      Sources/asasecmod/KittyMemory/MemoryPatchManager.h \
-                      Sources/asasecmod/KittyMemory/MemoryPatchManager.mm \
-                      Sources/asasecmod/KittyMemory/KittyMemory.cpp \
-                      Sources/asasecmod/KittyMemory/MemoryModifier.cpp \
                       Sources/load.s
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
@@ -24,10 +20,9 @@ Asasecİap_SWIFTFLAGS = \
 	-swift-version 5 \
 	-I$(SPM_MODULE_DIR) \
 	-sdk $(SDK_PATH) \
-	-target arm64-apple-ios14.0 \
-	-import-objc-header Sources/asasecmod/KittyMemory/MemoryPatchManager.h
+	-target arm64-apple-ios14.0 
 
-Asasecİap_CFLAGS = -fobjc-arc -I$(THEOS_PROJECT_DIR)/Sources/asasecmod/KittyMemory
+Asasecİap_CFLAGS = -fobjc-arc
 
 # Jinx nesne dosyalarını doğrudan bağlayıcıya (linker) aktarıyoruz
 Asasecİap_LDFLAGS = $(JINX_OBJECTS)
