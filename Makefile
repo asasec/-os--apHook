@@ -24,8 +24,10 @@ Asasecİap_SWIFTFLAGS = \
 	-sdk $(SDK_PATH) \
 	-target arm64-apple-ios14.0
 
-Asasecİap_CFLAGS = -fobjc-arc
-Asasecİap_CCFLAGS = -std=c++11 -Wno-error=unused-variable -Wno-error=vla-cxx-extension -Wno-error=deprecated-declarations -I$(THEOS_PROJECT_DIR)/Sources/asasecmod/KittyMemory
+Asasecİap_CFLAGS = -fobjc-arc -I$(THEOS_PROJECT_DIR)/Sources/asasecmod/KittyMemory
+
+# Swift derleyicisini patlatmamak için C++ bayraklarını yalnızca C++ derleyicisine (ADDITIONAL_CCFLAGS) veriyoruz
+ADDITIONAL_CCFLAGS = -std=c++11 -Wno-error=unused-variable -Wno-error=vla-cxx-extension -Wno-error=deprecated-declarations -I$(THEOS_PROJECT_DIR)/Sources/asasecmod/KittyMemory
 
 # Jinx nesne dosyalarını doğrudan bağlayıcıya (linker) aktarıyoruz
 Asasecİap_LDFLAGS = $(JINX_OBJECTS)
