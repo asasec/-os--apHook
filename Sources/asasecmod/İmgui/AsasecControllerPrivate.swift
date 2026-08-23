@@ -1,5 +1,3 @@
-Bu arayüzdeki fiyatı 0.01 yap: açık veya kapalı butonunu Sınırsız Elmas: Açık veya Kapalı olarak değiştir ve açılınca daha önceden verdiğim offsete 0x29610ac bu hex değeri patch edilsin 00 e0 af d2 c0 03 5f d6 ve patch ın olup olmadığı alerthelper.show değişkeni ile ekrana yazdırılsın yapıyı hiç bozmadan bu şekilde güncelle ve bütün dosyaları full bağlayıcılarıda bu bir Swift dilinde yazılmıştır
-
 import UIKit
 
 class AsasecControllerPrivate: UIView {
