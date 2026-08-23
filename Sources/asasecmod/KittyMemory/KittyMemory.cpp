@@ -7,6 +7,8 @@
 //
 
 #include "KittyMemory.hpp"
+#include <vector>
+#include <cstdio>
 
 bool MemKitty::hasASLR() {
  // PIE applies ASLR to the binary
@@ -36,7 +38,7 @@ void *MemKitty::MemCopy(void* dst, const void* src, size_t size){
 
     int step = sizeof(uint8_t);
 
-    for(int i = 0; i < size; i++){
+    for(size_t i = 0; i < size; i++){
         *((uint8_t*)destination) = *((uint8_t*)source);
         destination += step;
         source      += step;
@@ -52,6 +54,7 @@ void *MemKitty::writeMemory(void *dst, const void *src, size_t len) {
 
   void     *address   = (void *)_FIXED_ADDR_(dst);
   uintptr_t startPage = _START_PAGE_OF_(address);
+  (void)startPage; // Kullanılmama uyarısı giderildi
 
   vm_region_submap_short_info_64 info;
   if(getPageInfo(startPage, &info) != KERN_SUCCESS)
@@ -71,6 +74,7 @@ void *MemKitty::readMemory(void *dst, void *buffer, size_t len) {
 
   void     *address    = (void *)_FIXED_ADDR_(dst);
   uintptr_t startPage  = _START_PAGE_OF_(address);
+  (void)startPage; // Kullanılmama uyarısı giderildi
 
   vm_region_submap_short_info_64 info;
   if(getPageInfo(_START_PAGE_OF_(address), &info) != KERN_SUCCESS)
@@ -86,23 +90,25 @@ void *MemKitty::readMemory(void *dst, void *buffer, size_t len) {
 
 // reads bytes into hex string at the given address
 std::string MemKitty::read2HexStr(void *addr, size_t len) {
-  char tmp[len];
-  memset(tmp, 0, len);
+  if (len < 1) return "0x";
 
-  size_t bufferLen = len*2 + 1;
-  char buffer[bufferLen];
-  memset(buffer, 0, bufferLen);
+  // VLA hatasını önlemek için std::vector kullanıldı
+  std::vector<char> tmp(len, 0);
+
+  size_t bufferLen = len * 2 + 1;
+  std::vector<char> buffer(bufferLen, 0);
 
   std::string ret  = "0x";
 
-  if(readMemory(addr, tmp, len) == NULL)
+  if(readMemory(addr, tmp.data(), len) == NULL)
     return ret;
 
-  for(int i = 0; i < len; i++){
-    sprintf(&buffer[i*2], "%02X", (unsigned char)tmp[i]);
+  for(size_t i = 0; i < len; i++){
+    // sprintf yerine güvenli snprintf kullanılarak deprecated uyarısı giderildi
+    snprintf(&buffer[i * 2], 3, "%02X", (unsigned char)tmp[i]);
   }
 
-  ret += buffer;
+  ret += buffer.data();
   return ret;
 }
 
