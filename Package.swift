@@ -37,8 +37,10 @@ let package: Package = .init(
                 "Tweak.swift",
                 "Hooks",
                 "İmgui",
-                "Helper"
+                "Helper",
+                "KittyMemory/MemoryPatchManager.mm" // Objective-C++ köprüsü Swift paketine dahil edildi
             ],
+            publicHeadersPath: "KittyMemory", // C++ başlıklarının Swift tarafından okunabilmesi için
             swiftSettings: [.unsafeFlags(swiftFlags)]
         )
     ]
