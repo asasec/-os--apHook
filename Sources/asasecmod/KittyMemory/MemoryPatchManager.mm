@@ -1,9 +1,6 @@
-#import <Foundation/Foundation.h>
+#import "MemoryPatchManager.h"
 #include "MemoryModifier.hpp"
-
-@interface MemoryPatchManager : NSObject
-+ (BOOL)writeMemoryAtOffset:(uint64_t)offset withBytes:(NSArray<NSNumber *> *)bytes forLibrary:(NSString *)libraryName;
-@end
+#include <vector>
 
 @implementation MemoryPatchManager
 + (BOOL)writeMemoryAtOffset:(uint64_t)offset withBytes:(NSArray<NSNumber *> *)bytes forLibrary:(NSString *)libraryName {
