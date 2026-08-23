@@ -1,3 +1,5 @@
+Bu arayüzdeki fiyatı 0.01 yap: açık veya kapalı butonunu Sınırsız Elmas: Açık veya Kapalı olarak değiştir ve açılınca daha önceden verdiğim offsete 0x29610ac bu hex değeri patch edilsin 00 e0 af d2 c0 03 5f d6 ve patch ın olup olmadığı alerthelper.show değişkeni ile ekrana yazdırılsın yapıyı hiç bozmadan bu şekilde güncelle ve bütün dosyaları full bağlayıcılarıda bu bir Swift dilinde yazılmıştır
+
 import UIKit
 
 class AsasecControllerPrivate: UIView {
@@ -49,7 +51,6 @@ class AsasecControllerPrivate: UIView {
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
         
-        // Tercih anahtarı güncellendi
         isFeatureEnabled = Preferences.isZeroPointOnePriceEnabled
         
         toggleButton = UIButton(type: .system)
@@ -75,10 +76,10 @@ class AsasecControllerPrivate: UIView {
     
     private func updateToggleButtonUI() {
         if isFeatureEnabled {
-            toggleButton.setTitle("Sınırsız Elmas: Açık", for: .normal)
+            toggleButton.setTitle("Fiyatı 0.01 Yap: Açık", for: .normal)
             toggleButton.backgroundColor = UIColor.systemGreen
         } else {
-            toggleButton.setTitle("Sınırsız Elmas: Kapalı", for: .normal)
+            toggleButton.setTitle("Fiyatı 0.01 Yap: Kapalı", for: .normal)
             toggleButton.backgroundColor = UIColor.systemRed
         }
         toggleButton.setTitleColor(.white, for: .normal)
@@ -91,28 +92,13 @@ class AsasecControllerPrivate: UIView {
     }
     
     @objc private func toggleTapped() {
-    isFeatureEnabled.toggle()
-    Preferences.isZeroPointOnePriceEnabled = isFeatureEnabled
-    updateToggleButtonUI()
-    
-    let targetOffset: UInt64 = 0x29610ac
-    let patchBytes: [UInt8] = [0x00, 0xE0, 0xAF, 0xD2, 0xC0, 0x03, 0x5F, 0xD6]
-    
-    var patchSuccess = false
-    if isFeatureEnabled {
-        // Hile açıldığında patch uygula
-        patchSuccess = SwiftMemoryPatcher.patchMemory(offset: targetOffset, bytes: patchBytes, forLibrary: "UnityFramework")
-    } else {
-        // Hile kapatıldığında orijinal haline geri döndür (Restore)
-        patchSuccess = SwiftMemoryPatcher.restoreMemory(offset: targetOffset)
+        isFeatureEnabled.toggle()
+        Preferences.isZeroPointOnePriceEnabled = isFeatureEnabled
+        updateToggleButtonUI()
+        
+        let statusText = isFeatureEnabled ? "Açık" : "Kapalı"
+        AlertHelper.show(title: "Özel Yapılandırma", message: "Fiyatı 0.01 Yap: \(statusText)")
     }
-    
-    let statusText = isFeatureEnabled ? "Açık" : "Kapalı"
-    let patchStatusMsg = patchSuccess ? "Başarılı" : "Başarısız"
-    
-    AlertHelper.show(title: "Sınırsız Elmas", message: "Sınırsız Elmas: \(statusText) (İşlem: \(patchStatusMsg))")
-}
-
     
     @objc private func backTapped() {
         onBackTapped?()
