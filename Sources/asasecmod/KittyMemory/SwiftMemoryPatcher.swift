@@ -1,5 +1,6 @@
 import Foundation
 import MachO
+import Darwin
 
 public class SwiftMemoryPatcher {
     
@@ -37,7 +38,7 @@ public class SwiftMemoryPatcher {
         
         if activePatches[offset] == nil {
             var originalBytes = Array(repeating: UInt8(0), count: size)
-            originalBytes.withUnsafeMutableBufferPointer { originalBuffer in
+            _ = originalBytes.withUnsafeMutableBufferPointer { originalBuffer in
                 memcpy(originalBuffer.baseAddress, ptr, size)
             }
             activePatches[offset] = PatchRecord(address: targetAddress, originalBytes: originalBytes)
@@ -46,15 +47,8 @@ public class SwiftMemoryPatcher {
         let pageSize = UInt(vm_page_size)
         let pageStart = targetAddress & ~(pageSize - 1)
         
-        let kr = mach_vm_protect(
-            mach_task_self_,
-            mach_vm_address_t(pageStart),
-            mach_vm_size_t(pageSize),
-            0,
-            Int32(VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE | VM_PROT_COPY)
-        )
-        
-        guard kr == KERN_SUCCESS else { return false }
+        let kr = mprotect(UnsafeMutableRawPointer(bitPattern: pageStart), Int(pageSize), PROT_READ | PROT_WRITE | PROT_EXEC)
+        guard kr == 0 else { return false }
         
         bytes.withUnsafeBufferPointer { buffer in
             ptr.copyMemory(from: buffer.baseAddress!, byteCount: size)
@@ -76,15 +70,8 @@ public class SwiftMemoryPatcher {
         let pageSize = UInt(vm_page_size)
         let pageStart = targetAddress & ~(pageSize - 1)
         
-        let kr = mach_vm_protect(
-            mach_task_self_,
-            mach_vm_address_t(pageStart),
-            mach_vm_size_t(pageSize),
-            0,
-            Int32(VM_PROT_READ | VM_PROT_WRITE | VM_PROT_EXECUTE | VM_PROT_COPY)
-        )
-        
-        guard kr == KERN_SUCCESS else { return false }
+        let kr = mprotect(UnsafeMutableRawPointer(bitPattern: pageStart), Int(pageSize), PROT_READ | PROT_WRITE | PROT_EXEC)
+        guard kr == 0 else { return false }
         
         record.originalBytes.withUnsafeBufferPointer { buffer in
             ptr.copyMemory(from: buffer.baseAddress!, byteCount: size)
