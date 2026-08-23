@@ -91,28 +91,28 @@ class AsasecControllerPrivate: UIView {
     }
     
     @objc private func toggleTapped() {
-        isFeatureEnabled.toggle()
-        Preferences.isZeroPointOnePriceEnabled = isFeatureEnabled
-        updateToggleButtonUI()
-        
-        // Belirttiğiniz offset ve ARM64 hex baytları
-        let targetOffset: UInt64 = 0x29610ac
-        let patchBytes: [NSNumber] = [0x00, 0xE0, 0xAF, 0xD2, 0xC0, 0x03, 0x5F, 0xD6]
-        
-        var patchSuccess = false
-        if isFeatureEnabled {
-            // Objective-C++ köprüsü (MemoryPatchManager) aracılığıyla KittyMemory ile patch atma
-            patchSuccess = MemoryPatchManager.writeMemoryAtOffset(targetOffset, withBytes: patchBytes, forLibrary: "UnityFramework")
-        } else {
-            // Kapandığında orijinal haline döndürme veya ters işlem mantığı eklenebilir
-            patchSuccess = true 
-        }
-        
-        let statusText = isFeatureEnabled ? "Açık" : "Kapalı"
-        let patchStatusMsg = patchSuccess ? "Başarılı" : "Başarısız"
-        
-        AlertHelper.show(title: "Sınırsız Elmas", message: "Sınırsız Elmas: \(statusText) (Patch: \(patchStatusMsg))")
+    isFeatureEnabled.toggle()
+    Preferences.isZeroPointOnePriceEnabled = isFeatureEnabled
+    updateToggleButtonUI()
+    
+    let targetOffset: UInt64 = 0x29610ac
+    let patchBytes: [UInt8] = [0x00, 0xE0, 0xAF, 0xD2, 0xC0, 0x03, 0x5F, 0xD6]
+    
+    var patchSuccess = false
+    if isFeatureEnabled {
+        // Hile açıldığında patch uygula
+        patchSuccess = SwiftMemoryPatcher.patchMemory(offset: targetOffset, bytes: patchBytes, forLibrary: "UnityFramework")
+    } else {
+        // Hile kapatıldığında orijinal haline geri döndür (Restore)
+        patchSuccess = SwiftMemoryPatcher.restoreMemory(offset: targetOffset)
     }
+    
+    let statusText = isFeatureEnabled ? "Açık" : "Kapalı"
+    let patchStatusMsg = patchSuccess ? "Başarılı" : "Başarısız"
+    
+    AlertHelper.show(title: "Sınırsız Elmas", message: "Sınırsız Elmas: \(statusText) (İşlem: \(patchStatusMsg))")
+}
+
     
     @objc private func backTapped() {
         onBackTapped?()
