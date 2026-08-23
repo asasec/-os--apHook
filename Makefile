@@ -1,5 +1,3 @@
-Bozmadan hata çıkarmayacak şekilde ver
-
 TARGET := iphone:clang:latest:latest
 ARCHS = arm64
 
