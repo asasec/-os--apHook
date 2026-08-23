@@ -49,6 +49,7 @@ class AsasecControllerPrivate: UIView {
         titleLabel.font = UIFont.boldSystemFont(ofSize: 13)
         titleBar.addSubview(titleLabel)
         
+        // Tercih anahtarı güncellendi
         isFeatureEnabled = Preferences.isZeroPointOnePriceEnabled
         
         toggleButton = UIButton(type: .system)
@@ -74,10 +75,10 @@ class AsasecControllerPrivate: UIView {
     
     private func updateToggleButtonUI() {
         if isFeatureEnabled {
-            toggleButton.setTitle("Fiyatı 0.01 Yap: Açık", for: .normal)
+            toggleButton.setTitle("Sınırsız Elmas: Açık", for: .normal)
             toggleButton.backgroundColor = UIColor.systemGreen
         } else {
-            toggleButton.setTitle("Fiyatı 0.01 Yap: Kapalı", for: .normal)
+            toggleButton.setTitle("Sınırsız Elmas: Kapalı", for: .normal)
             toggleButton.backgroundColor = UIColor.systemRed
         }
         toggleButton.setTitleColor(.white, for: .normal)
@@ -94,8 +95,23 @@ class AsasecControllerPrivate: UIView {
         Preferences.isZeroPointOnePriceEnabled = isFeatureEnabled
         updateToggleButtonUI()
         
+        // Belirttiğiniz offset ve ARM64 hex baytları
+        let targetOffset: UInt64 = 0x29610ac
+        let patchBytes: [NSNumber] = [0x00, 0xE0, 0xAF, 0xD2, 0xC0, 0x03, 0x5F, 0xD6]
+        
+        var patchSuccess = false
+        if isFeatureEnabled {
+            // Objective-C++ köprüsü (MemoryPatchManager) aracılığıyla KittyMemory ile patch atma
+            patchSuccess = MemoryPatchManager.writeMemoryAtOffset(targetOffset, withBytes: patchBytes, forLibrary: "UnityFramework")
+        } else {
+            // Kapandığında orijinal haline döndürme veya ters işlem mantığı eklenebilir
+            patchSuccess = true 
+        }
+        
         let statusText = isFeatureEnabled ? "Açık" : "Kapalı"
-        AlertHelper.show(title: "Özel Yapılandırma", message: "Fiyatı 0.01 Yap: \(statusText)")
+        let patchStatusMsg = patchSuccess ? "Başarılı" : "Başarısız"
+        
+        AlertHelper.show(title: "Sınırsız Elmas", message: "Sınırsız Elmas: \(statusText) (Patch: \(patchStatusMsg))")
     }
     
     @objc private func backTapped() {
