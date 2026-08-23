@@ -8,6 +8,7 @@ TWEAK_NAME = Asasecİap
 # Sources/asasecmod altındaki tüm Swift dosyaları, KittyMemory C++ dosyaları ve load.s derlemeye dahil edildi
 Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
                       $(wildcard Sources/asasecmod/**/*.swift) \
+                      Sources/asasecmod/KittyMemory/MemoryPatchManager.mm \
                       Sources/asasecmod/KittyMemory/KittyMemory.cpp \
                       Sources/asasecmod/KittyMemory/MemoryModifier.cpp \
                       Sources/load.s
