@@ -38,9 +38,8 @@ let package: Package = .init(
                 "Hooks",
                 "İmgui",
                 "Helper",
-                "KittyMemory/MemoryPatchManager.mm" // Objective-C++ köprüsü Swift paketine dahil edildi
+                "KittyMemory"
             ],
-            publicHeadersPath: "KittyMemory", // C++ başlıklarının Swift tarafından okunabilmesi için
             swiftSettings: [.unsafeFlags(swiftFlags)]
         )
     ]
