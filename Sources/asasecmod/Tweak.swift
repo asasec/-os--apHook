@@ -5,13 +5,14 @@ import UIKit
 struct Tweak {
     static func ctor() {
 
-        CanPayHook().hook()
-        DelegateHook().hook()
-        TransactionHook().hook()
-        ProductHook().hook()
-        ReelShortPurchaseHook().hook()
-        ListenerSKProductsRequest().hook()
-        UniversalListener().hook()
+        //CanPayHook().hook()
+        //DelegateHook().hook()
+        //TransactionHook().hook()
+        //ProductHook().hook()
+       // ReelShortPurchaseHook().hook()
+        //ListenerSKProductsRequest().hook()
+        //UniversalListener().hook()
+        FLEXManager.shared.showExplorer()
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
