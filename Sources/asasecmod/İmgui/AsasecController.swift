@@ -70,11 +70,16 @@ class NativeMenuViewWrapper: UIView {
         
         setupUI()
         
-        // Oyunu silip yüklemediği sürece kalıcı gizlenmiş mi kontrol et
+        // Oyun her başladığında kalıcı gizlenme durumunu kontrol et
         let isPermanentlyHidden = UserDefaults.standard.bool(forKey: "Preferences_MenuPermanentlyHidden")
         if isPermanentlyHidden {
             mobileMenuWindow.isHidden = true
             floatingIcon.isHidden = true
+            
+            // İstediğiniz Açılış Uyarısı
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                self.showPermanentCloseAlert()
+            }
         }
     }
     
@@ -158,6 +163,42 @@ class NativeMenuViewWrapper: UIView {
         
         let iconPan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
         floatingIcon.addGestureRecognizer(iconPan)
+    }
+    
+    // Oyun açılışındaki kalıcı gizleme uyarısı
+    private func showPermanentCloseAlert() {
+        guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
+              let rootVC = window.rootViewController else {
+            return
+        }
+        
+        var topController = rootVC
+        while let presented = topController.presentedViewController {
+            topController = presented
+        }
+        
+        let alert = UIAlertController(
+            title: "Arayüz",
+            message: "Kalıcı gizleme kapatılsın mı?",
+            preferredStyle: .alert
+        )
+        
+        // Kapat butonu -> Kalıcı gizlemeyi kapatır ve menüyü görünür yapar
+        let kapatAction = UIAlertAction(title: "Kapat", style: .default) { _ in
+            UserDefaults.standard.set(false, forKey: "Preferences_MenuPermanentlyHidden")
+            UserDefaults.standard.synchronize()
+            
+            self.floatingIcon.isHidden = true
+            self.mobileMenuWindow.isHidden = false
+        }
+        
+        // Kapatma butonu -> Gizli kalmaya devam eder
+        let kapatmaAction = UIAlertAction(title: "Kapatma", style: .cancel, handler: nil)
+        
+        alert.addAction(kapatAction)
+        alert.addAction(kapatmaAction)
+        
+        topController.present(alert, animated: true, completion: nil)
     }
     
     private func createButton(frame: CGRect, title: String, color: UIColor) -> UIButton {
@@ -255,26 +296,31 @@ class NativeMenuViewWrapper: UIView {
             AlertHelper.show(title: "⚙️ Ayarlar", message: "Seçenekler başarıyla kaydedildi!")
         }
         
-        // Modu Gizle butonuna basıldığında iki seçenekli HideMenuHelper tetikleniyor
+        // Modu Gizle butonuna basıldığında
         sView.onHideMenuRequested = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
             
             HideMenuHelper.showHideOptions(
                 onTemporary: {
-                    // Geçici Gizleme: Oturum boyunca gizli kalır
+                    // Geçici Gizleme
                     self?.mobileMenuWindow.isHidden = true
                     self?.floatingIcon.isHidden = true
                     AlertHelper.show(title: "Bilgi", message: "Mod geçici olarak gizlendi. Oyunu yeniden başlatana kadar görünmeyecek.")
                 },
                 onPermanent: {
-                    // Kalıcı Gizleme: UserDefaults'a kaydedilir, silinene kadar açılmaz
+                    // Kalıcı Gizleme
                     UserDefaults.standard.set(true, forKey: "Preferences_MenuPermanentlyHidden")
                     UserDefaults.standard.synchronize()
                     
                     self?.mobileMenuWindow.isHidden = true
                     self?.floatingIcon.isHidden = true
                     AlertHelper.show(title: "Bilgi", message: "Mod kalıcı olarak gizlendi.")
+                },
+                onCancel: {
+                    // İptal edildiğinde: Menüyü tekrar görünür yapıp eski yerine getiriyoruz, gizlenmiyor
+                    self?.mobileMenuWindow.center = sView?.center ?? currentCenter
+                    self?.mobileMenuWindow.isHidden = false
                 }
             )
         }
