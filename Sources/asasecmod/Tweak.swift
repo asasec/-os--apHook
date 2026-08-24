@@ -1,6 +1,5 @@
 import Jinx
 import UIKit
-import FLEX
 
 @available(iOS 15.0, *)
 struct Tweak {
@@ -13,7 +12,11 @@ struct Tweak {
        // ReelShortPurchaseHook().hook()
         //ListenerSKProductsRequest().hook()
         //UniversalListener().hook()
-        FLEXManager.shared.showExplorer()
+        if let cls = NSClassFromString("FLEXManager") {
+            let sharedManager = cls.perform(NSSelectorFromString("sharedManager")).takeUnretainedValue()
+            _ = sharedManager.perform(NSSelectorFromString("showExplorer"))
+        }
+
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
