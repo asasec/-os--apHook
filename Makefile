@@ -12,15 +12,19 @@ Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 
-# Jinx ve FLEX modül dizinlerini buluyoruz
-SPM_JINX_DIR = $(shell find .build -name "Jinx.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
-SPM_FLEX_DIR = $(shell find .build -name "FLEX.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+# SPM modül dizinlerini daha esnek ve kesin bir şekilde buluyoruz
+SPM_JINX_DIR = $(shell find .build -type d -name "Jinx.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+SPM_FLEX_DIR = $(shell find .build -type d -name "FLEX.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+
+# Eğer FLEX.swiftmodule doğrudan bulunamazsa, .swiftmodule içeren tüm klasörleri dahil etmeyi garantiliyoruz
+SPM_MODULE_DIRS = $(shell find .build -type d -name "*.swiftmodule" 2>/dev/null | xargs -n1 dirname | tr '\n' ' ')
+SPM_INCLUDE_FLAGS = $(foreach dir,$(SPM_MODULE_DIRS),-I$(dir))
 
 # Derlenen tüm SPM nesne dosyalarını (.o) tek seferde topluyoruz
 SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 
-# Sorun çıkaran -target parametresi kaldırıldı (Theos bunu otomatik yönetiyor)
-Asasecİap_SWIFTFLAGS = -swift-version 5 -I$(SPM_JINX_DIR) -I$(SPM_FLEX_DIR)
+# Bulunan tüm swiftmodule dizinlerini Swift bayraklarına ekliyoruz
+Asasecİap_SWIFTFLAGS = -swift-version 5 $(SPM_INCLUDE_FLAGS)
 
 Asasecİap_CFLAGS = -fobjc-arc
 
@@ -65,6 +69,7 @@ before-all::
 		--sdk "$(SDK_PATH)" \
 		--triple arm64-apple-ios14.0
 
+	@echo "SPM_MODULE_DIRS: $(SPM_MODULE_DIRS)"
 	@echo "SPM_OBJECTS count: $(words $(SPM_OBJECTS))"
 
 after-install::
