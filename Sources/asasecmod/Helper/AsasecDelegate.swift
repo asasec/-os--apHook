@@ -1,38 +1,57 @@
+import Foundation
 import StoreKit
 
 final class AsasecDelegate: NSObject, SKProductsRequestDelegate {
     static let shared: AsasecDelegate = .init()
     var delegates: [SKProductsRequestDelegate] = []
-    var products: [SKProduct] = []
+    var cachedProducts: [String: SKProduct] = [:]
     
     func productsRequest(
         _ request: SKProductsRequest,
         didReceive response: SKProductsResponse
     ) {
-        // Eğer gelen yanıt boş değilse orijinal akışı bozmadan ilet
         guard response.products.isEmpty else {
-            _ = delegates.map { $0.productsRequest(request, didReceive: response) }
+            delegates.forEach { $0.productsRequest(request, didReceive: response) }
             return
         }
         
-        // Ürün listesini güvenli bir şekilde cache'leyip döndürelim
-        if products.isEmpty {
-            if let _request = request.value(forKey: "_productsRequestInternal") as? AnyObject,
-               let _identifiers = _request.value(forKey: "_productIdentifiers") as? Set<String> {
-                let identifiers: [String] = Array(_identifiers)
-                
-                products = identifiers.map { id in
-                    let product = SKProduct()
-                    // Çökmeyi önlemek için güvenli alanlar
-                    product.setValue(id, forKey: "productIdentifier")
-                    return product
-                }
+        var productIdentifiers: [String] = []
+        if let internalRequest = try? request.value(forKey: "_productsRequestInternal") as AnyObject?,
+           let identifiers = try? internalRequest?.value(forKey: "_productIdentifiers") as? Set<String> {
+            productIdentifiers = Array(identifiers)
+        }
+        
+        guard !productIdentifiers.isEmpty else {
+            delegates.forEach { $0.productsRequest(request, didReceive: response) }
+            return
+        }
+        
+        var generatedProducts: [SKProduct] = []
+        for id in productIdentifiers {
+            if let existing = cachedProducts[id] {
+                generatedProducts.append(existing)
+            } else if let mockProduct = createMockProduct(withIdentifier: id) {
+                cachedProducts[id] = mockProduct
+                generatedProducts.append(mockProduct)
             }
         }
         
         let fakeResponse = SKProductsResponse()
-        fakeResponse.setValue(products, forKey: "products")
+        fakeResponse.setValue(generatedProducts, forKey: "products")
         
-        _ = delegates.map { $0.productsRequest(request, didReceive: fakeResponse) }
+        delegates.forEach { $0.productsRequest(request, didReceive: fakeResponse) }
+    }
+    
+    private func createMockProduct(withIdentifier identifier: String) -> SKProduct? {
+        guard let productClass = NSClassFromString("SKProduct") as? NSObject.Type,
+              let product = productClass.alloc() as? SKProduct else {
+            return nil
+        }
+        
+        product.setValue(identifier, forKey: "productIdentifier")
+        product.setValue(NSDecimalNumber(string: "0.99"), forKey: "price")
+        product.setValue(Locale.current, forKey: "priceLocale")
+        
+        return product
     }
 }
