@@ -1,5 +1,45 @@
 import UIKit
 
+
+struct HideMenuHelper {
+    static func showHideOptions(onTemporary: @escaping () -> Void, onPermanent: @escaping () -> Void) {
+        DispatchQueue.main.async {
+            guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
+                  let rootVC = window.rootViewController else {
+                return
+            }
+            
+            var topController = rootVC
+            while let presented = topController.presentedViewController {
+                topController = presented
+            }
+            
+            let alert = UIAlertController(
+                title: "Modu Gizle",
+                message: "Mod menüsünü nasıl gizlemek istersiniz?\n\n• Geçici: Oyun kapanıp açılana kadar gizlenir.\n• Kalıcı: Siz tekrar aktif edene kadar gizli kalır.",
+                preferredStyle: .alert
+            )
+            
+            let tempAction = UIAlertAction(title: "Geçici Gizle", style: .default) { _ in
+                onTemporary()
+            }
+            
+            let permAction = UIAlertAction(title: "Kalıcı Gizle", style: .destructive) { _ in
+                onPermanent()
+            }
+            
+            let cancelAction = UIAlertAction(title: "İptal", style: .cancel, handler: nil)
+            
+            alert.addAction(tempAction)
+            alert.addAction(permAction)
+            alert.addAction(cancelAction)
+            
+            topController.present(alert, animated: true, completion: nil)
+        }
+    }
+}
+
+
 class AsasecSettingsView: UIView {
     var onBackTapped: (() -> Void)?
     var onHideMenuRequested: (() -> Void)?
