@@ -3,22 +3,22 @@ import UIKit
 import Jinx
 
 struct ReelShortPurchaseHook: Hook {
-    typealias T = @convention(c) (AnyObject, Selector, NSString, NSString, NSString, NSString, NSString, AnyObject?) -> Void
+    // vc_onActionButton metodunun imza karşılığı (self, selector, sender)
+    typealias T = @convention(c) (AnyObject, Selector, AnyObject?) -> Void
 
-    let cls: AnyClass? = objc_getClass("RSStoreKitV2Manager") as? AnyClass
-    let sel: Selector = NSSelectorFromString("v2_purchaseSuccessWithTransactionId:orderId:sku:originalId:iapWayS:completion:")
+    let cls: AnyClass? = objc_getClass("RSVipCenterPlanSelectorView") as? AnyClass
+    let sel: Selector = NSSelectorFromString("vc_onActionButton:")
 
-    let replace: T = { selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion in
-        // Nesnenin gerçek sınıf adını runtime üzerinden alıyoruz
+    let replace: T = { selfObj, selector, sender in
         let className = String(describing: type(of: selfObj))
-        let skuString = sku as String
         
-        // Ekrana hem sınıf adını hem de yakalanan SKU'yu basıyoruz
+        // Ekrana butonun yakalandığını ve sınıf adını basıyoruz
         AlertHelper.show(
-            title: "Hook Yakaladı!",
-            message: "Sınıf: \(className)\nSKU: \(skuString)"
+            title: "VIP Butonu Yakalandı! 🎉",
+            message: "Sınıf: \(className)\nMetot: vc_onActionButton"
         )
         
-        orig(selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion)
+        // Orijinal fonksiyonu tetikle (istersen burada atlayabilir veya değiştirebilirsin)
+        orig(selfObj, selector, sender)
     }
 }
