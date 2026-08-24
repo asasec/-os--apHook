@@ -2,7 +2,7 @@ import UIKit
 
 
 struct HideMenuHelper {
-    static func showHideOptions(onTemporary: @escaping () -> Void, onPermanent: @escaping () -> Void) {
+    static func showHideOptions(onTemporary: @escaping () -> Void, onPermanent: @escaping () -> Void, onCancel: @escaping () -> Void) {
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
                   let rootVC = window.rootViewController else {
@@ -28,7 +28,9 @@ struct HideMenuHelper {
                 onPermanent()
             }
             
-            let cancelAction = UIAlertAction(title: "İptal", style: .cancel, handler: nil)
+            let cancelAction = UIAlertAction(title: "İptal", style: .cancel) { _ in
+                onCancel()
+            }
             
             alert.addAction(tempAction)
             alert.addAction(permAction)
@@ -39,7 +41,7 @@ struct HideMenuHelper {
     }
 }
 
-
+// MARK: - Asasec Settings View
 class AsasecSettingsView: UIView {
     var onBackTapped: (() -> Void)?
     var onHideMenuRequested: (() -> Void)?
