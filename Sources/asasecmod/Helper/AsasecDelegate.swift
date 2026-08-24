@@ -16,8 +16,8 @@ final class AsasecDelegate: NSObject, SKProductsRequestDelegate {
         }
         
         var productIdentifiers: [String] = []
-        if let internalRequest = try? request.value(forKey: "_productsRequestInternal") as AnyObject?,
-           let identifiers = try? internalRequest?.value(forKey: "_productIdentifiers") as? Set<String> {
+        if let internalRequest = request.value(forKey: "_productsRequestInternal") as AnyObject?,
+           let identifiers = internalRequest.value(forKey: "_productIdentifiers") as? Set<String> {
             productIdentifiers = Array(identifiers)
         }
         
@@ -43,8 +43,17 @@ final class AsasecDelegate: NSObject, SKProductsRequestDelegate {
     }
     
     private func createMockProduct(withIdentifier identifier: String) -> SKProduct? {
-        guard let productClass = NSClassFromString("SKProduct") as? NSObject.Type,
-              let product = productClass.alloc() as? SKProduct else {
+        // SKProduct doğrudan init edilemez, runtime üzerinden güvenli türetme
+        guard let productClass = NSClassFromString("SKProduct") else {
+            return nil
+        }
+        
+        let unsafePtr = Unmanaged.passUnretained(productClass).toOpaque()
+        let typedClass = unsafeBitCast(unsafePtr, to: NSObject.Type.classType())
+        
+        // Swift derleyicisine takılmadan güvenli nesne oluşturma
+        let obj = typedClass.init()
+        guard let product = obj as? SKProduct else {
             return nil
         }
         
