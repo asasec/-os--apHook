@@ -38,29 +38,28 @@ final class AsasecDelegate: NSObject, SKProductsRequestDelegate {
         
         let fakeResponse = SKProductsResponse()
         fakeResponse.setValue(generatedProducts, forKey: "products")
+        // Bazı oyunlar geçersiz ürün listesini de kontrol eder, burayı boş geçiyoruz
+        fakeResponse.setValue([String](), forKey: "invalidProductIdentifiers")
         
         delegates.forEach { $0.productsRequest(request, didReceive: fakeResponse) }
     }
     
     private func createMockProduct(withIdentifier identifier: String) -> SKProduct? {
-        // SKProduct doğrudan init edilemez, runtime üzerinden güvenli türetme
-        guard let productClass = NSClassFromString("SKProduct") else {
+        guard let productClass = NSClassFromString("SKProduct") as? NSObject.Type,
+              let instance = productClass.init() as? SKProduct else {
             return nil
         }
         
-        let unsafePtr = Unmanaged.passUnretained(productClass).toOpaque()
-        let typedClass = unsafeBitCast(unsafePtr, to: NSObject.Type.classType())
+        // Oyunun kontrol ettiği tüm kritik alanları dolduruyoruz
+        instance.setValue(identifier, forKey: "productIdentifier")
+        instance.setValue(NSDecimalNumber(string: "0.99"), forKey: "price")
+        instance.setValue(Locale.current, forKey: "priceLocale")
+        instance.setValue("Asasec Item", forKey: "localizedTitle")
+        instance.setValue("Unlocked via Asasec IAP Hook", forKey: "localizedDescription")
+        instance.setValue(true, forKey: "downloadable")
+        instance.setValue([Int](), forKey: "downloadContentLengths")
+        instance.setValue("", forKey: "downloadContentVersion")
         
-        // Swift derleyicisine takılmadan güvenli nesne oluşturma
-        let obj = typedClass.init()
-        guard let product = obj as? SKProduct else {
-            return nil
-        }
-        
-        product.setValue(identifier, forKey: "productIdentifier")
-        product.setValue(NSDecimalNumber(string: "0.99"), forKey: "price")
-        product.setValue(Locale.current, forKey: "priceLocale")
-        
-        return product
+        return instance
     }
 }
