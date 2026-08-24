@@ -8,11 +8,9 @@ struct ProductHook: Hook {
     let sel: Selector = #selector(getter: SKProduct.price)
     
     let replace: T = { selfObj, sel in
-        // Eğer özellik açıksa fiyatı 0.01 yap
         if Preferences.isZeroPointOnePriceEnabled {
-            return 0.01
+            return NSDecimalNumber(string: "0.01") // Tip uyuşmazlığı çökmesini önler
         }
-        // Kapalıysa orijinal fonksiyonu çağır
         return orig(selfObj, sel)
     }
 }
