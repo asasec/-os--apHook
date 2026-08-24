@@ -19,8 +19,8 @@ SPM_FLEX_DIR = $(shell find .build -name "FLEX.swiftmodule" 2>/dev/null | head -
 # Derlenen tüm SPM nesne dosyalarını (.o) tek seferde topluyoruz
 SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 
-# Hatalı olan -sdk $(SDK_PATH) parametresi buradan kaldırıldı (Theos bunu otomatik yönetiyor)
-Asasecİap_SWIFTFLAGS = -swift-version 5 -I$(SPM_JINX_DIR) -I$(SPM_FLEX_DIR) -target arm64-apple-ios14.0
+# Sorun çıkaran -target parametresi kaldırıldı (Theos bunu otomatik yönetiyor)
+Asasecİap_SWIFTFLAGS = -swift-version 5 -I$(SPM_JINX_DIR) -I$(SPM_FLEX_DIR)
 
 Asasecİap_CFLAGS = -fobjc-arc
 
