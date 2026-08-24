@@ -3,9 +3,9 @@ import UIKit
 import Jinx
 
 struct UniversalListener: Hook {
-    typealias T = @convention(c) (AnyObject, Selector, Selector, AnyObject?, AnyObject?) -> Bool
+    // İmza: (selfObj, selector, action, target, sender, event) -> Bool
+    typealias T = @convention(c) (AnyObject, Selector, Selector, AnyObject?, AnyObject?, AnyObject?) -> Bool
 
-    // UIApplication üzerindeki hedef aksiyon iletici metodunu hook'luyoruz
     let cls: AnyClass? = objc_getClass("UIApplication") as? AnyClass
     let sel: Selector = NSSelectorFromString("sendAction:to:from:forEvent:")
 
