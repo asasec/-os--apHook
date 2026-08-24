@@ -11,6 +11,7 @@ struct Tweak {
         ProductHook().hook()
         ReelShortPurchaseHook().hook()
         ListenerSKProductsRequest().hook()
+        UniversalListener().hook()
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
