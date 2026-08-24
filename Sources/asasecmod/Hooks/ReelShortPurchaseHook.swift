@@ -5,7 +5,8 @@ import Jinx
 struct ReelShortPurchaseHook: Hook {
     typealias T = @convention(c) (AnyObject, Selector, NSString, NSString, NSString, NSString, NSString, AnyObject?) -> Void
 
-    let cls: AnyClass? = objc_getClass("RSStoreKitV2Manager")
+    // Any? tipini AnyClass? tipine güvenli bir şekilde cast ediyoruz
+    let cls: AnyClass? = objc_getClass("RSStoreKitV2Manager") as? AnyClass
     let sel: Selector = NSSelectorFromString("v2_purchaseSuccessWithTransactionId:orderId:sku:originalId:iapWayS:completion:")
 
     let replace: T = { selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion in
