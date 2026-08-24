@@ -14,7 +14,7 @@ struct Tweak {
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
         
         // İlk açılışta menüyü ekle
-        showMenu()
+       /* showMenu()
         
         // Oyundan çık-gir yapıldığında veya sahneler arası geçişte kaybolmayı önlemek için
         NotificationCenter.default.addObserver(
@@ -23,10 +23,10 @@ struct Tweak {
             queue: .main
         ) { _ in
             showMenu()
-        }
+        }*/
     }
     
-    private static func showMenu() {
+    /*private static func showMenu() {
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
                   let rootVC = window.rootViewController else {
@@ -40,7 +40,7 @@ struct Tweak {
             }
         }
     }
-}
+}*/
 
 @_cdecl("jinx_entry")
 func jinxEntry() {
