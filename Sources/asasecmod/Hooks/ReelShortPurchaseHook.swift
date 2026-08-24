@@ -8,8 +8,8 @@ struct ReelShortPurchaseHook: Hook {
     let cls: AnyClass? = objc_getClass("RSStoreKitV2Manager") as? AnyClass
     let sel: Selector = NSSelectorFromString("v2_purchaseSuccessWithTransactionId:orderId:sku:originalId:iapWayS:completion:")
 
-    let replace: T = { selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion: Void in
-        // Nesnenin (selfObj) gerçek sınıf adını runtime üzerinden string olarak alıyoruz
+    let replace: T = { selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion in
+        // Nesnenin gerçek sınıf adını runtime üzerinden alıyoruz
         let className = String(describing: type(of: selfObj))
         let skuString = sku as String
         
