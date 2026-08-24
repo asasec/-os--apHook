@@ -5,17 +5,20 @@ import Jinx
 struct ReelShortPurchaseHook: Hook {
     typealias T = @convention(c) (AnyObject, Selector, NSString, NSString, NSString, NSString, NSString, AnyObject?) -> Void
 
-    // Any? tipini AnyClass? tipine güvenli bir şekilde cast ediyoruz
     let cls: AnyClass? = objc_getClass("RSStoreKitV2Manager") as? AnyClass
     let sel: Selector = NSSelectorFromString("v2_purchaseSuccessWithTransactionId:orderId:sku:originalId:iapWayS:completion:")
 
-    let replace: T = { selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion in
+    let replace: T = { selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion: Void in
+        // Nesnenin (selfObj) gerçek sınıf adını runtime üzerinden string olarak alıyoruz
+        let className = String(describing: type(of: selfObj))
         let skuString = sku as String
         
-        // Ekranda UIAlertController ile göster
-        AlertHelper.show(title: "Jinx Hook Başarılı!", message: "Satın alma yakalandı!\nSKU: \(skuString)")
+        // Ekrana hem sınıf adını hem de yakalanan SKU'yu basıyoruz
+        AlertHelper.show(
+            title: "Hook Yakaladı!",
+            message: "Sınıf: \(className)\nSKU: \(skuString)"
+        )
         
-        // Orijinal işleyişe devam etmesi için fonksiyonu tetikliyoruz
         orig(selfObj, selector, txId, orderId, sku, originalId, iapWayS, completion)
     }
 }
