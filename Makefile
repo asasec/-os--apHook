@@ -5,27 +5,31 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = Asasecİap
 
-# Sources/asasecmod altındaki tüm Swift dosyaları, KittyMemory C++ dosyaları ve load.s derlemeye dahil edildi
+# Sadece senin tweak dosyaların ve load.s (FLEX dosyalarını elle eklemiyoruz!)
 Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
-                      $(wildcard Sources/asasecmod/**/*.swift) \
-                      Sources/load.s
+                  $(wildcard Sources/asasecmod/**/*.swift) \
+                  Sources/load.s
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
-SPM_MODULE_DIR = $(shell find .build -name "Jinx.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
 
-# Jinx.build altında derlenen tüm nesne dosyalarını (.o) tek seferde topluyoruz
-JINX_OBJECTS = $(shell find .build -path "*/Jinx.build/*.o" 2>/dev/null)
+# Jinx ve FLEX modül yollarını buluyoruz
+SPM_JINX_DIR = $(shell find .build -name "Jinx.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+SPM_FLEX_DIR = $(shell find .build -name "FLEX.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+
+# Derlenen tüm SPM nesne dosyalarını (.o) topluyoruz
+SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 
 Asasecİap_SWIFTFLAGS = \
 	-swift-version 5 \
-	-I$(SPM_MODULE_DIR) \
+	-I$(SPM_JINX_DIR) \
+	-I$(SPM_FLEX_DIR) \
 	-sdk $(SDK_PATH) \
 	-target arm64-apple-ios14.0 
 
 Asasecİap_CFLAGS = -fobjc-arc
 
-# Jinx nesne dosyalarını doğrudan bağlayıcıya (linker) aktarıyoruz
-Asasecİap_LDFLAGS = $(JINX_OBJECTS)
+# Jinx ve FLEX nesne dosyalarını doğrudan bağlayıcıya aktarıyoruz
+Asasecİap_LDFLAGS = $(SPM_OBJECTS)
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 
@@ -36,36 +40,17 @@ before-all::
 	@echo "SDK_PATH=$(SDK_PATH)"
 	@echo ""
 
-	@if [ -z "$(SDK_PATH)" ]; then \
-		echo "ERROR: SDK_PATH is empty."; \
-		exit 1; \
-	fi
-
-	@if [ ! -d "$(SDK_PATH)" ]; then \
-		echo "ERROR: SDK does not exist:"; \
-		echo "$(SDK_PATH)"; \
-		exit 1; \
-	fi
-
-	@if [ ! -d "$(SDK_PATH)/System/Library/Frameworks/UIKit.framework" ]; then \
-		echo "ERROR: UIKit.framework not found."; \
-		exit 1; \
-	fi
-
-	@echo "UIKit.framework found."
-	@echo ""
-
 	swift package resolve
 
 	@echo "========================================"
-	@echo "Building Jinx dependency"
+	@echo "Building Swift packages (Jinx & FLEX)"
 	@echo "========================================"
 
 	swift build \
 		--sdk "$(SDK_PATH)" \
 		--triple arm64-apple-ios14.0
 
-	@echo "JINX_OBJECTS count: $(words $(JINX_OBJECTS))"
+	@echo "SPM_OBJECTS count: $(words $(SPM_OBJECTS))"
 
 after-install::
 	install.exec "killall -9 SpringBoard"
