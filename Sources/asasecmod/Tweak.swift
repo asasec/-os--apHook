@@ -12,10 +12,21 @@ struct Tweak {
        // ReelShortPurchaseHook().hook()
         //ListenerSKProductsRequest().hook()
         //UniversalListener().hook()
-        if let cls = NSClassFromString("FLEXManager") {
-            let sharedManager = cls.perform(NSSelectorFromString("sharedManager")).takeUnretainedValue()
-            _ = sharedManager.perform(NSSelectorFromString("showExplorer"))
-        }
+        if let cls: AnyClass = NSClassFromString("FLEXManager") {
+    // sharedManager metodunun Objective-C IMP (Function Pointer) çağrısı
+    let selector = NSSelectorFromString("sharedManager")
+    typealias SharedManagerFunc = @convention(c) (AnyClass, Selector) -> AnyObject
+    let implementation = class_getMethodImplementation(object_getClass(cls), selector)
+    let castedFunc = unsafeBitCast(implementation, to: SharedManagerFunc.self)
+    let sharedManager = castedFunc(cls, selector)
+    
+    // showExplorer metodunu çağır
+    let showSelector = NSSelectorFromString("showExplorer")
+    typealias ShowExplorerFunc = @convention(c) (AnyObject, Selector) -> Void
+    let showImplementation = class_getMethodImplementation(object_getClass(sharedManager), showSelector)
+    let castedShowFunc = unsafeBitCast(showImplementation, to: ShowExplorerFunc.self)
+    castedShowFunc(sharedManager, showSelector)
+}
 
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
