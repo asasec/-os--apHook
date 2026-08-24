@@ -35,7 +35,7 @@ struct Tweak {
         }*/
     }
     
-    /*private static func showMenu() {
+    private static func showMenu() {
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
                   let rootVC = window.rootViewController else {
@@ -49,7 +49,7 @@ struct Tweak {
             }
         }
     }
-}*/
+} // <-- Eksik olan struct kapanış parantezi eklendi
 
 @_cdecl("jinx_entry")
 func jinxEntry() {
