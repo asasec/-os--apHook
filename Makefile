@@ -12,19 +12,19 @@ Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 
-# SPM modül dizinlerini daha esnek ve kesin bir şekilde buluyoruz
-SPM_JINX_DIR = $(shell find .build -type d -name "Jinx.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
-SPM_FLEX_DIR = $(shell find .build -type d -name "FLEX.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+# SPM modül yollarını doğrudan .build altındaki arm64 debug/release çıktı dizinlerinden arıyoruz
+SPM_MODULE_DIR_ALT1 = $(shell find .build -path "*/debug-iphoneos/*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+SPM_MODULE_DIR_ALT2 = $(shell find .build -path "*/arm64-apple-ios*/*" -name "*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+SPM_MODULE_DIR_ALT3 = $(shell find .build -name "*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
 
-# Eğer FLEX.swiftmodule doğrudan bulunamazsa, .swiftmodule içeren tüm klasörleri dahil etmeyi garantiliyoruz
-SPM_MODULE_DIRS = $(shell find .build -type d -name "*.swiftmodule" 2>/dev/null | xargs -n1 dirname | tr '\n' ' ')
-SPM_INCLUDE_FLAGS = $(foreach dir,$(SPM_MODULE_DIRS),-I$(dir))
+# Hangisi dolu dönerse onu seçiyoruz
+SPM_FINAL_MODULE_DIR = $(if $(SPM_MODULE_DIR_ALT1),$(SPM_MODULE_DIR_ALT1),$(if $(SPM_MODULE_DIR_ALT2),$(SPM_MODULE_DIR_ALT2),$(SPM_MODULE_DIR_ALT3)))
 
 # Derlenen tüm SPM nesne dosyalarını (.o) tek seferde topluyoruz
 SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 
-# Bulunan tüm swiftmodule dizinlerini Swift bayraklarına ekliyoruz
-Asasecİap_SWIFTFLAGS = -swift-version 5 $(SPM_INCLUDE_FLAGS)
+# Modül dizinini hem ana klasör hem de parent olarak ekliyoruz ki hem Jinx hem FLEX çözümlensin
+Asasecİap_SWIFTFLAGS = -swift-version 5 -I$(SPM_FINAL_MODULE_DIR) -I$(shell dirname $(SPM_FINAL_MODULE_DIR))
 
 Asasecİap_CFLAGS = -fobjc-arc
 
@@ -69,7 +69,7 @@ before-all::
 		--sdk "$(SDK_PATH)" \
 		--triple arm64-apple-ios14.0
 
-	@echo "SPM_MODULE_DIRS: $(SPM_MODULE_DIRS)"
+	@echo "SPM_FINAL_MODULE_DIR: $(SPM_FINAL_MODULE_DIR)"
 	@echo "SPM_OBJECTS count: $(words $(SPM_OBJECTS))"
 
 after-install::
