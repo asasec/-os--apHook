@@ -69,6 +69,13 @@ class NativeMenuViewWrapper: UIView {
         }
         
         setupUI()
+        
+        // Oyunu silip yüklemediği sürece kalıcı gizlenmiş mi kontrol et
+        let isPermanentlyHidden = UserDefaults.standard.bool(forKey: "Preferences_MenuPermanentlyHidden")
+        if isPermanentlyHidden {
+            mobileMenuWindow.isHidden = true
+            floatingIcon.isHidden = true
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -116,28 +123,23 @@ class NativeMenuViewWrapper: UIView {
         closeBtn.addTarget(self, action: #selector(minimizeMenu), for: .touchUpInside)
         titleBar.addSubview(closeBtn)
         
-        // 1. Bedava Satın Alma Butonu
         freePurchaseButton = createButton(frame: CGRect(x: 18, y: 48, width: 234, height: 32), title: "", color: .red)
         updateFreePurchaseUI()
         freePurchaseButton.addTarget(self, action: #selector(freePurchaseTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(freePurchaseButton)
         
-        // 2. Özel Yapılandırma Tuşu
         let customConfigBtn = createButton(frame: CGRect(x: 18, y: 86, width: 234, height: 32), title: "Özel Yapılandırma", color: UIColor(red: 0.25, green: 0.45, blue: 0.75, alpha: 1.0))
         customConfigBtn.addTarget(self, action: #selector(customConfigTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(customConfigBtn)
         
-        // 3. Ayarlar Tuşu
         let settingsBtn = createButton(frame: CGRect(x: 18, y: 124, width: 234, height: 32), title: "⚙️ Ayarlar", color: UIColor(red: 0.30, green: 0.50, blue: 0.30, alpha: 1.0))
         settingsBtn.addTarget(self, action: #selector(settingsTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(settingsBtn)
         
-        // 4. Mod Hakkında Bilgi Butonu
         let bilgiverbize = createButton(frame: CGRect(x: 18, y: 162, width: 234, height: 32), title: "💡 Mod Hakkında & Bilgi", color: UIColor(red: 0.50, green: 0.20, blue: 0.60, alpha: 1.0))
         bilgiverbize.addTarget(self, action: #selector(bilgiverbizeTapped), for: .touchUpInside)
         mobileMenuWindow.addSubview(bilgiverbize)
 
-        // Yüzen Simge
         floatingIcon = UIButton(type: .system)
         floatingIcon.frame = CGRect(x: 50, y: 80, width: 54, height: 54)
         floatingIcon.backgroundColor = UIColor(red: 0.10, green: 0.10, blue: 0.13, alpha: 0.92)
@@ -253,11 +255,28 @@ class NativeMenuViewWrapper: UIView {
             AlertHelper.show(title: "⚙️ Ayarlar", message: "Seçenekler başarıyla kaydedildi!")
         }
         
+        // Modu Gizle butonuna basıldığında iki seçenekli HideMenuHelper tetikleniyor
         sView.onHideMenuRequested = { [weak self, weak sView] in
             sView?.removeFromSuperview()
             self?.settingsView = nil
-            self?.mobileMenuWindow.isHidden = true
-            self?.floatingIcon.isHidden = true
+            
+            HideMenuHelper.showHideOptions(
+                onTemporary: {
+                    // Geçici Gizleme: Oturum boyunca gizli kalır
+                    self?.mobileMenuWindow.isHidden = true
+                    self?.floatingIcon.isHidden = true
+                    AlertHelper.show(title: "Bilgi", message: "Mod geçici olarak gizlendi. Oyunu yeniden başlatana kadar görünmeyecek.")
+                },
+                onPermanent: {
+                    // Kalıcı Gizleme: UserDefaults'a kaydedilir, silinene kadar açılmaz
+                    UserDefaults.standard.set(true, forKey: "Preferences_MenuPermanentlyHidden")
+                    UserDefaults.standard.synchronize()
+                    
+                    self?.mobileMenuWindow.isHidden = true
+                    self?.floatingIcon.isHidden = true
+                    AlertHelper.show(title: "Bilgi", message: "Mod kalıcı olarak gizlendi.")
+                }
+            )
         }
         
         let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan(_:)))
