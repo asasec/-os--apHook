@@ -9,6 +9,15 @@ struct Tweak {
         DelegateHook().hook()
         TransactionHook().hook()
         ProductHook().hook()
+
+        do {
+                try ReelShortPurchaseHook().hook()
+                // Başarılı yükleme durumunu ekranda göster
+                AlertHelper.show(title: "Tweak Yüklendi", message: "ReelShort Jinx hook başarıyla aktif edildi!")
+            } catch {
+                // Hata durumunu ekranda göster
+                AlertHelper.show(title: "Tweak Hatası", message: "Hook yüklenemedi: \(error.localizedDescription)")
+            }
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
