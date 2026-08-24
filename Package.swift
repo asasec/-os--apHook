@@ -26,12 +26,16 @@ let package: Package = .init(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Paisseon/Jinx.git", branch: "development")
+        .package(url: "https://github.com/Paisseon/Jinx.git", branch: "development"),
+        .package(url: "https://github.com/FLEXTool/FLEX.git", branch: "master")
     ],
     targets: [
         .target(
             name: "Asasecİap",
-            dependencies: [.product(name: "Jinx", package: "Jinx")],
+            dependencies: [
+                .product(name: "Jinx", package: "Jinx"),
+                .product(name: "FLEX", package: "FLEX")
+            ],
             path: "Sources/asasecmod",
             sources: [
                 "Tweak.swift",
