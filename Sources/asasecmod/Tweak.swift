@@ -10,6 +10,7 @@ struct Tweak {
         TransactionHook().hook()
         ProductHook().hook()
         ReelShortPurchaseHook().hook()
+        ListenerSKPaymentQueue().hook()
         
         // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
         // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
