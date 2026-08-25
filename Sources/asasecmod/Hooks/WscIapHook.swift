@@ -25,7 +25,11 @@ struct WscIapHook: Hook {
             
             // İşlemi doğrudan tamamlandı olarak işaretleyip oyuna veriyoruz
             let completeSelector = NSSelectorFromString("completeTransaction:")
-            let targetClass: AnyClass = object_getClass(selfInstance)
+            
+            // Opsiyonel olan AnyClass? değerini güvenli bir şekilde açıyoruz (Unwrap)
+            guard let targetClass = object_getClass(selfInstance) else {
+                return
+            }
             
             if class_respondsToSelector(targetClass, completeSelector),
                let completeIMP = class_getMethodImplementation(targetClass, completeSelector) {
