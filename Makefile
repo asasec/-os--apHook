@@ -18,18 +18,30 @@ SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 SPM_MODULE_DIR = $(CURDIR)/.build/arm64-apple-ios/release
 SPM_DEBUG_MODULE_DIR = $(CURDIR)/.build/arm64-apple-ios/debug
 
-# FLEX.swiftmodule ve Jinx.swiftmodule konumlarını otomatik bul
-FLEX_MODULE_DIR = $(shell find "$(SPM_MODULE_DIR)" -type f -name "FLEX.swiftmodule" -print -quit 2>/dev/null | xargs -r dirname)
-JINX_MODULE_DIR = $(shell find "$(SPM_MODULE_DIR)" -type f -name "Jinx.swiftmodule" -print -quit 2>/dev/null | xargs -r dirname)
+# ============================================================
+# Jinx Swift Module
+# ============================================================
 
-# Debug fallback
-ifeq ($(strip $(FLEX_MODULE_DIR)),)
-FLEX_MODULE_DIR = $(shell find "$(SPM_DEBUG_MODULE_DIR)" -type f -name "FLEX.swiftmodule" -print -quit 2>/dev/null | xargs -r dirname)
-endif
+JINX_MODULE_DIR = $(shell find "$(SPM_MODULE_DIR)" -type f -name "Jinx.swiftmodule" -print -quit 2>/dev/null | xargs -r dirname)
 
 ifeq ($(strip $(JINX_MODULE_DIR)),)
 JINX_MODULE_DIR = $(shell find "$(SPM_DEBUG_MODULE_DIR)" -type f -name "Jinx.swiftmodule" -print -quit 2>/dev/null | xargs -r dirname)
 endif
+
+# ============================================================
+# FLEX Clang Module
+# ============================================================
+
+FLEX_MODULEMAP = $(shell find "$(SPM_MODULE_DIR)" -type f -name "module.modulemap" -path "*FLEX*" -print -quit 2>/dev/null)
+
+ifeq ($(strip $(FLEX_MODULEMAP)),)
+FLEX_MODULEMAP = $(shell find "$(SPM_DEBUG_MODULE_DIR)" -type f -name "module.modulemap" -path "*FLEX*" -print -quit 2>/dev/null)
+endif
+
+FLEX_MODULE_DIR = $(shell if [ -n "$(FLEX_MODULEMAP)" ]; then dirname "$(FLEX_MODULEMAP)"; fi)
+
+# FLEX public headers
+FLEX_HEADER_DIR = $(shell find "$(CURDIR)/.build" -type d -path "*FLEX*" -name "Headers" -print -quit 2>/dev/null)
 
 # ============================================================
 # SPM Object Files
@@ -44,16 +56,19 @@ SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 Asasecİap_SWIFTFLAGS = -swift-version 5 \
                        -I$(SPM_MODULE_DIR) \
                        -I$(SPM_DEBUG_MODULE_DIR) \
-                       -I$(SPM_MODULE_DIR)/Modules \
-                       -I$(SPM_DEBUG_MODULE_DIR)/Modules \
+                       -I$(JINX_MODULE_DIR) \
                        -I$(FLEX_MODULE_DIR) \
-                       -I$(JINX_MODULE_DIR)
+                       -I$(FLEX_HEADER_DIR)
 
 # ============================================================
-# C / Linker Flags
+# C Flags
 # ============================================================
 
 Asasecİap_CFLAGS = -fobjc-arc
+
+# ============================================================
+# Linker Flags
+# ============================================================
 
 Asasecİap_LDFLAGS = $(SPM_OBJECTS)
 
@@ -104,24 +119,24 @@ before-all::
 	@echo "SPM Module Information"
 	@echo "========================================"
 
-	@echo "FLEX_MODULE_DIR=$(FLEX_MODULE_DIR)"
 	@echo "JINX_MODULE_DIR=$(JINX_MODULE_DIR)"
-	@echo "SPM_MODULE_DIR=$(SPM_MODULE_DIR)"
-	@echo "SPM_DEBUG_MODULE_DIR=$(SPM_DEBUG_MODULE_DIR)"
+	@echo "FLEX_MODULEMAP=$(FLEX_MODULEMAP)"
+	@echo "FLEX_MODULE_DIR=$(FLEX_MODULE_DIR)"
+	@echo "FLEX_HEADER_DIR=$(FLEX_HEADER_DIR)"
 	@echo ""
 
 	@echo "========================================"
-	@echo "Searching FLEX.swiftmodule"
+	@echo "Searching FLEX module maps"
 	@echo "========================================"
 
-	@find .build -type f -name "FLEX.swiftmodule" -print 2>/dev/null || true
+	@find .build -type f -name "module.modulemap" -print 2>/dev/null || true
 
 	@echo ""
 	@echo "========================================"
-	@echo "Searching Jinx.swiftmodule"
+	@echo "Searching FLEX headers"
 	@echo "========================================"
 
-	@find .build -type f -name "Jinx.swiftmodule" -print 2>/dev/null || true
+	@find .build -type f \( -name "FLEXManager.h" -o -name "FLEX.h" \) -print 2>/dev/null || true
 
 	@echo ""
 	@echo "SPM_OBJECTS count: $(words $(SPM_OBJECTS))"
