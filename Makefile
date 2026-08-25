@@ -12,8 +12,8 @@ Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 
-# LS çıktısına göre daha sonra tam yolu nokta atışı güncelleyeceğiz, şimdilik güvenli bir arama bırakıyoruz
-SPM_FINAL_MODULE_DIR = $(shell find .build -type d -name "arm64-apple-ios*" 2>/dev/null | head -n 1)
+# Doğru modül klasörünü nokta atışı belirtiyoruz
+SPM_FINAL_MODULE_DIR = .build/arm64-apple-ios/debug/Modules
 
 # Derlenen tüm SPM nesne dosyalarını (.o) tek seferde topluyoruz
 SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
@@ -63,11 +63,7 @@ before-all::
 		--sdk "$(SDK_PATH)" \
 		--triple arm64-apple-ios14.0
 
-	@echo "========================================"
-	@echo "Listing .build contents (ls -R .build)"
-	@echo "========================================"
-	@find .build -maxdepth 4 -ls || ls -R .build
-
+	@echo "SPM_FINAL_MODULE_DIR: $(SPM_FINAL_MODULE_DIR)"
 	@echo "SPM_OBJECTS count: $(words $(SPM_OBJECTS))"
 
 after-install::
