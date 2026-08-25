@@ -27,7 +27,7 @@ let package: Package = .init(
     ],
     dependencies: [
         .package(url: "https://github.com/Paisseon/Jinx.git", branch: "development"),
-        .package(url: "https://github.com/TimOliver/fleXD.git", branch: "master")
+        .package(url: "https://github.com/TimOliver/fleXD.git", branch: "main")
     ],
     targets: [
         .target(
