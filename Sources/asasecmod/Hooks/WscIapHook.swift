@@ -9,12 +9,12 @@ struct WscIapHook: Hook {
     let sel: Selector = NSSelectorFromString("payForProduct:askToBuy:")
     
     let replace: T = { selfObj, sel, product, askToBuy in
-        // Çökme (Crash) riskini önlemek için nil kontrolü ekledik
-        guard let validProduct = product else {
+        // Çökme riskini önlemek için güvenli optional kontrolü (AnyObject -> Optional cast)
+        guard let validProduct = product as? NSObject else {
             DispatchQueue.main.async {
                 AlertHelper.show(
                     title: "Hata!", 
-                    message: "Satın alma başarısız: Ürün bilgisi (product) boş geldi."
+                    message: "Satın alma başarısız: Ürün bilgisi (product) boş veya geçersiz."
                 )
             }
             return
@@ -22,7 +22,7 @@ struct WscIapHook: Hook {
         
         let productName = String(describing: validProduct)
         
-        // UI işlemlerinin güvenli çalışması için ana thread (Main Thread) üzerine alıyoruz
+        // UI işlemlerinin güvenli çalışması için ana thread üzerine alıyoruz
         DispatchQueue.main.async {
             AlertHelper.show(
                 title: "Hile Aktif!", 
