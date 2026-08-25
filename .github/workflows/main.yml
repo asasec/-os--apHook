@@ -101,6 +101,7 @@ jobs:
           echo ""
 
           swift build \
+            --configuration release \
             --sdk "$SDK_PATH" \
             --triple arm64-apple-ios14.0
 
