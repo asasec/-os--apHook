@@ -24,6 +24,7 @@ struct Tweak {
                   UserAccountCoinsOverrideHook().hook()
                   UserAccountBonusOverrideHook().hook()
                   UserAccountVipOverrideHook().hook()
+                  EpisodeLockOverrideHook().hook()
                   
                   GuiAlert.BilgiAktar(baslik: "StoreKit-1", mesaj: "Yama Uygulandı")
                },
