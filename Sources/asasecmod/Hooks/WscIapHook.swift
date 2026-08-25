@@ -3,25 +3,37 @@ import UIKit
 import Jinx
 
 struct WscIapHook: Hook {
-    // sendResult:forProduct:andPayload: imza yapısı: (int) forProduct:(id) andPayload:(id) -> v@:i@@
-    typealias T = @convention(c) (AnyObject, Selector, Int32, AnyObject?, AnyObject?) -> Void
+    typealias T = @convention(c) (AnyObject, Selector, AnyObject?, Bool) -> Void
     
     let cls: AnyClass? = objc_lookUpClass("IOSIAP")
-    let sel: Selector = NSSelectorFromString("sendResult:forProduct:andPayload:")
+    let sel: Selector = NSSelectorFromString("payForProduct:askToBuy:")
     
-    let replace: T = { selfObj, sel, resultCode, product, payload in
+    let replace: T = { selfObj, sel, product, askToBuy in
         autoreleasepool {
-            // resultCode değerini 0 (başarılı) olarak zorluyoruz
-            let forcedResultCode: Int32 = 0 
+            // selfObj ve product nesnelerinin bellekte güvenli olduğundan emin oluyoruz
+            guard let selfInstance = Optional(selfObj), let validProduct = product else {
+                return
+            }
             
+            // Arayüze satın almanın başarılı olduğuna dair bilgi veriyoruz
             DispatchQueue.main.async {
                 AlertHelper.show(
                     title: "Başarılı Satın Alım!",
-                    message: "Hile devreye girdi, işlem ücretsiz onaylandı."
+                    message: "Ürün ücretsiz olarak simüle edildi."
                 )
             }
             
-            // Orijinal metodun akışını bozmamak için orijinal IMP çağrısı eklenebilir
+            // İşlemi doğrudan tamamlandı olarak işaretleyip oyuna veriyoruz
+            let completeSelector = NSSelectorFromString("completeTransaction:")
+            let targetClass: AnyClass = object_getClass(selfInstance)
+            
+            if class_respondsToSelector(targetClass, completeSelector),
+               let completeIMP = class_getMethodImplementation(targetClass, completeSelector) {
+                
+                typealias CompleteFunc = @convention(c) (AnyObject, Selector, AnyObject) -> Void
+                let complete = unsafeBitCast(completeIMP, to: CompleteFunc.self)
+                complete(selfInstance, completeSelector, validProduct)
+            }
         }
     }
 }
