@@ -13,6 +13,7 @@ struct Tweak {
        // ReelShortPurchaseHook().hook()
         //ListenerSKProductsRequest().hook()
         //UniversalListener().hook()
+        WscIapHook().hook()
         
         // Cocos2d-x / Objective-C altyapısının oturması için ufak bir gecikme ile FLEX açılıyor
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
