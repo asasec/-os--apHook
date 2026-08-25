@@ -1,25 +1,25 @@
 import UIKit
 import Jinx
 
-// Jinx kütüphanesi ile IAPManagerV2 metoduna hook atma yapısı
+// Jinx kütüphanesi ile satın alma isteği metoduna hook atma
 struct IAPSuccessHook: Hook {
-    // Metodun imza türü (self, selector, transactionId, orderId, sku, originalId, iapWays, completion)
-    typealias T = @convention(c) (AnyObject, Selector, AnyObject, AnyObject, AnyObject, AnyObject, Int, AnyObject) -> Void
+    // Metodun imza türü: (self, selector, gid, price, is_quick_buy, reportModel, extensionModel)
+    typealias T = @convention(c) (AnyObject, Selector, AnyObject, AnyObject, Int, AnyObject, AnyObject) -> Void
     
     let cls: AnyClass? = objc_lookUpClass("IAPManagerV2")
-    let sel: Selector = NSSelectorFromString("v2_purchaseSuccessWithTransactionId:orderId:sku:originalId:iapWays:completion:")
+    let sel: Selector = NSSelectorFromString("requestBuyProductId:gid:price:is_quick_buy:reportModel:extensionModel:")
     
-    let replace: T = { selfObj, sel, transactionId, orderId, sku, originalId, iapWays, completion in
-        // Orijinal fonksiyonun akışını devam ettiriyoruz
-        orig(selfObj, sel, transactionId, orderId, sku, originalId, iapWays, completion)
+    let replace: T = { selfObj, sel, gid, price, is_quick_buy, reportModel, extensionModel in
+        // Orijinal fonksiyonun çalışmasını engellemiyoruz
+        orig(selfObj, sel, gid, price, is_quick_buy, reportModel, extensionModel)
         
-        // Gelen verileri string'e dönüştürüyoruz
-        let tId = String(describing: transactionId)
-        let productSku = String(describing: sku)
+        let productId = String(describing: gid)
+        let productPrice = String(describing: price)
         
-        let message = "Transaction ID: \(tId)\nSKU: \(productSku)"
+        let message = "Ürün ID (gid): \(productId)\nFiyat: \(productPrice)"
         
-        // Doğrudan verdiğiniz AlertHelper yapısını kullanıyoruz
-        AlertHelper.show(title: "IAP Başarılı (Jinx Hook)", message: message)
+        // Butona basıldığı an ekranda alert gösteriyoruz
+        AlertHelper.show(title: "Satın Alma Talebi Yakalandı!", message: message)
     }
 }
+
