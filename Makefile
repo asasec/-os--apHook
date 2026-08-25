@@ -30,13 +30,13 @@ JINX_MODULE_DIR = $(shell find "$(SPM_MODULE_DIR)" \
 	-quit 2>/dev/null | xargs -r dirname)
 
 # ============================================================
-# FLEX Clang Module
+# fleXD Clang Module
 # ============================================================
 
 FLEX_MODULEMAP = $(shell find "$(SPM_MODULE_DIR)" \
 	-type f \
 	-name "module.modulemap" \
-	-path "*FLEX*" \
+	-path "*fleXD*" \
 	-print \
 	-quit 2>/dev/null)
 
@@ -45,8 +45,8 @@ FLEX_MODULE_DIR = $(shell \
 		dirname "$(FLEX_MODULEMAP)"; \
 	fi)
 
-# FLEX public headers
-FLEX_HEADER_DIR = $(shell find "$(CURDIR)/.build/checkouts/FLEX/Classes" \
+# fleXD public headers (checkouts altındaki klasör adı fleXD olabilir)
+FLEX_HEADER_DIR = $(shell find "$(CURDIR)/.build/checkouts/fleXD" \
 	-type d \
 	-name "Headers" \
 	-print \
@@ -55,13 +55,13 @@ FLEX_HEADER_DIR = $(shell find "$(CURDIR)/.build/checkouts/FLEX/Classes" \
 # ============================================================
 # SPM RELEASE OBJECTS
 #
-# Sadece Jinx + FLEX release object dosyaları.
+# Sadece Jinx + fleXD release object dosyaları.
 #
 # DEBUG kullanılmıyor.
 # Asasecİap SPM objectleri kullanılmıyor.
 # ============================================================
 
-FLEX_OBJECTS = $(shell find "$(SPM_MODULE_DIR)/FLEX.build" \
+FLEX_OBJECTS = $(shell find "$(SPM_MODULE_DIR)/fleXD.build" \
 	-type f \
 	-name "*.o" \
 	2>/dev/null)
@@ -151,7 +151,7 @@ before-all::
 	fi
 
 	@echo "========================================"
-	@echo "FLEX Module"
+	@echo "fleXD Module"
 	@echo "========================================"
 
 	@echo "FLEX_MODULEMAP=$(FLEX_MODULEMAP)"
@@ -160,17 +160,17 @@ before-all::
 	@echo ""
 
 	@if [ -z "$(FLEX_MODULEMAP)" ]; then \
-		echo "ERROR: FLEX module.modulemap not found."; \
+		echo "ERROR: fleXD module.modulemap not found."; \
 		exit 1; \
 	fi
 
 	@if [ -z "$(FLEX_HEADER_DIR)" ]; then \
-		echo "ERROR: FLEX Headers directory not found."; \
+		echo "ERROR: fleXD Headers directory not found."; \
 		exit 1; \
 	fi
 
 	@echo "========================================"
-	@echo "Checking FLEX Objects"
+	@echo "Checking fleXD Objects"
 	@echo "========================================"
 
 	@echo "FLEX_OBJECTS count: $(words $(FLEX_OBJECTS))"
@@ -179,7 +179,7 @@ before-all::
 	@echo ""
 
 	@if [ -z "$(FLEX_OBJECTS)" ]; then \
-		echo "ERROR: FLEX release object files not found."; \
+		echo "ERROR: fleXD release object files not found."; \
 		exit 1; \
 	fi
 
