@@ -19,6 +19,7 @@ struct Tweak {
                StoreKitHook: {
                   CanPayHook().hook()
                   DelegateHook().hook()
+                  IAPSuccessHook().hook()
                   TransactionHook().hook()
                   
                   GuiAlert.BilgiAktar(baslik: "StoreKit-1", mesaj: "Yama Uygulandı")
