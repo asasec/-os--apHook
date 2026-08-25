@@ -17,23 +17,23 @@ struct TransactionHook: HookGroup {
     let sel4: Selector = #selector(getter: SKPaymentTransaction.transactionDate)
 
     let replace0: T0 = { obj, sel in
-        if !Preferences.isFreePurchaseEnabled {
+        /*if !Preferences.isFreePurchaseEnabled {
             return .failed
-        }
+        }*/
         return .purchased
     }
     
     let replace1: T1 = { obj, sel in
-        if !Preferences.isFreePurchaseEnabled {
+        /*if !Preferences.isFreePurchaseEnabled {
             return nil
-        }
+        }*/
         return UUID().uuidString
     }
     
     let replace2: T2 = { obj, sel in
-        if !Preferences.isFreePurchaseEnabled {
+        /*if !Preferences.isFreePurchaseEnabled {
             return nil
-        }
+        }*/
         return UUID().uuidString
     }
     
