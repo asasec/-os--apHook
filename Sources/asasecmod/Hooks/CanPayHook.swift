@@ -8,9 +8,9 @@ struct CanPayHook: Hook {
     let sel: Selector = #selector(SKPaymentQueue.canMakePayments)
     
     let replace: T = { obj, sel in
-        if !Preferences.isFreePurchaseEnabled {
+        /*if !Preferences.isFreePurchaseEnabled {
             return orig(obj, sel) // Kapalıysa orijinal sonuca karışma
-        }
+        }*/
         return true // Açıksa her zaman true dön
     }
 }
