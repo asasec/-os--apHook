@@ -36,7 +36,7 @@ JINX_MODULE_DIR = $(shell find "$(SPM_MODULE_DIR)" \
 FLEX_MODULEMAP = $(shell find "$(SPM_MODULE_DIR)" \
 	-type f \
 	-name "module.modulemap" \
-	-path "*fleXD*" \
+	\( -path "*FLEX*" -o -path "*fleXD*" \) \
 	-print \
 	-quit 2>/dev/null)
 
