@@ -34,7 +34,7 @@ let package: Package = .init(
             name: "Asasecİap",
             dependencies: [
                 .product(name: "Jinx", package: "Jinx"),
-                .product(name: "FLEX", package: "FLEX")
+                .product(name: "FLEX", package: "fleXD")
             ],
             path: "Sources/asasecmod",
             sources: [
