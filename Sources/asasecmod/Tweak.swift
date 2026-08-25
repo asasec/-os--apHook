@@ -1,31 +1,35 @@
-import Jinx
+import Foundation
 import UIKit
+import Jinx
 import FLEX
 
 @available(iOS 15.0, *)
 struct Tweak {
     static func ctor() {
 
-        //CanPayHook().hook()
-        //DelegateHook().hook()
-        //TransactionHook().hook()
-        //ProductHook().hook()
-       // ReelShortPurchaseHook().hook()
-        //ListenerSKProductsRequest().hook()
-        //UniversalListener().hook()
-        //WscIapHook().hook()
-        
-        // Çökme (silent crash) yaşamamak için FLEX açılışı geçici olarak yorum satırına alındı
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            FLEXManager.shared.showExplorer()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            
+            GuiAlert.BaslangicEkrani(
+               FlexGui: {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                     FLEXManager.shared.showExplorer()
+                  }
+               },
+               
+               StoreKitHook: {
+                  CanPayHook().hook()
+                  DelegateHook().hook()
+                  TransactionHook().hook()
+                  
+                  GuiAlert.BilgiAktar(baslik: "StoreKit-1", mesaj: "Yama Uygulandı")
+               },
+               
+               Kapat: {
+                  GuiAlert.BilgiAktar(baslik: "Durduruldu", mesaj: "Uygulama veya Oyun kapatılıp açılana kadar durduruldu")
+               }
+            )
         }
 
-
-        
-        // Eğer projenizde Preferences tanımlı değilse bu kısımları kaldırabilirsiniz
-        // veya projenizdeki ayarlara göre uyarlayabilirsiniz.
-        
         // İlk açılışta menüyü ekle
        /* showMenu()
         
@@ -53,7 +57,7 @@ struct Tweak {
             }
         }
     }*/
-} // <-- Eksik olan struct kapanış parantezi eklendi
+}
 
 @_cdecl("jinx_entry")
 func jinxEntry() {
