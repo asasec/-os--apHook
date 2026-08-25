@@ -11,20 +11,10 @@ struct IAPSuccessHook: Hook {
         
         let productSku = String(describing: sku).lowercased()
         
-        // Önce orijinal satın alma fonksiyonunu çalıştırıyoruz
+        // Orijinal satın alma fonksiyonunu çalıştırıyoruz
         orig(selfObj, sel, resultCode, message, addConis, sku, price, orderId, transationId, orderModel, checkOrderStatus, appleError, businessError, payStep)
         
-        let userAccountClass: AnyClass? = objc_lookUpClass("UserAccount")
-        
-        if productSku.contains("vip") || productSku.contains("sub") {
-            AlertHelper.show(title: "VIP Aktifleştirildi", message: "Ürün: \(productSku)\nVIP statüsü zorlanıyor...")
-        } else {
-            let forcedCoins: Int = 99999
-            AlertHelper.show(title: "Jeton Yüklendi", message: "Ürün: \(productSku)\nEklenen Jeton: \(forcedCoins)")
-            
-            let setCoinsSel = NSSelectorFromString("setCoins:")
-            typealias SetCoinsFunc = @convention(c) (AnyObject, Selector, Int) -> Void
-        }
+        AlertHelper.show(title: "İşlem Başarılı", message: "Ürün işlendi: \(productSku)")
         
         // Sunucu ve arayüz senkronizasyonu
         let accountServiceClass: AnyClass? = objc_lookUpClass("RSNCoreBridgeAccountService")
@@ -41,18 +31,34 @@ struct IAPSuccessHook: Hook {
     }
 }
 
-struct UserAccountOverrideHook: Hook {
+// Jeton miktarını doğrudan manipüle eden hook
+struct UserAccountCoinsOverrideHook: Hook {
     typealias T = @convention(c) (AnyObject, Selector, Int) -> Void
     
     let cls: AnyClass? = objc_lookUpClass("UserAccount")
     let sel: Selector = NSSelectorFromString("setCoins:")
     
     let replace: T = { selfObj, sel, coins in
+        // Jeton değerini istediğimiz yüksek bir rakama sabitliyoruz
         let hackedCoins: Int = 99999
         orig(selfObj, sel, hackedCoins)
     }
 }
 
+// Ödül jeton miktarını manipüle eden hook
+struct UserAccountBonusOverrideHook: Hook {
+    typealias T = @convention(c) (AnyObject, Selector, Int) -> Void
+    
+    let cls: AnyClass? = objc_lookupClass("UserAccount")
+    let sel: Selector = NSSelectorFromString("setBonus:")
+    
+    let replace: T = { selfObj, sel, bonus in
+        let hackedBonus: Int = 99999
+        orig(selfObj, sel, hackedBonus)
+    }
+}
+
+// VIP durumunu aktif eden hook
 struct UserAccountVipOverrideHook: Hook {
     typealias T = @convention(c) (AnyObject, Selector, Int) -> Void
     
