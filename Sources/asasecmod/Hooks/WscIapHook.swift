@@ -17,7 +17,7 @@ struct WscIapHook: Hook {
             
             // Gelen nesnenin sınıfını (Objective-C class adını) güvenli bir şekilde öğreniyoruz
             let productClass = object_getClass(validProduct)
-            let className = productClass.map { String(describing: $0) } ? "Bilinmeyen Sınıf"
+            let className = productClass.map { String(describing: $0) } ?? "Bilinmeyen Sınıf"
             
             // Ürün ID'sini ve sınıf adını ekranda aynı anda gösterelim
             let productID = "\(validProduct)"
