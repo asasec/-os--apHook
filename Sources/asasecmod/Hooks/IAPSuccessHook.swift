@@ -29,6 +29,31 @@ struct IAPSuccessHook: Hook {
     }
 }
 
+// 1. Coins getter metodunu hook'la ve her zaman yüksek değer döndür
+struct CoinsHook: Hook {
+    typealias T = @convention(c) (AnyObject, Selector) -> Int
+    
+    let cls: AnyClass? = objc_lookUpClass("VAccountBalance")
+    let sel: Selector = sel_registerName("coins")
+    
+    let replace: T = { obj, sel in
+        return 999999 // Sınırsız görünmesini istediğin miktar
+    }
+}
+
+// 2. Bonus getter metodunu hook'la
+struct BonusHook: Hook {
+    typealias T = @convention(c) (AnyClass, Selector) -> Int
+    
+    let cls: AnyClass? = objc_lookUpClass("VAccountBalance")
+    let sel: Selector = sel_registerName("bonus")
+    
+    let replace: T = { obj, sel in
+        return 999999
+    }
+}
+
+
 struct EpisodeLockOverrideHook: Hook {
     typealias T = @convention(c) (AnyObject, Selector) -> Int
     
