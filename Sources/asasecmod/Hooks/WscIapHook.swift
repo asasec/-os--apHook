@@ -15,11 +15,17 @@ struct WscIapHook: Hook {
                 return
             }
             
-            // Arayüze satın almanın başarılı olduğuna dair bilgi veriyoruz
+            // Gelen nesnenin sınıfını (Objective-C class adını) güvenli bir şekilde öğreniyoruz
+            let productClass = object_getClass(validProduct)
+            let className = productClass.map { String(describing: $0) } ? "Bilinmeyen Sınıf"
+            
+            // Ürün ID'sini ve sınıf adını ekranda aynı anda gösterelim
+            let productID = "\(validProduct)"
+            
             DispatchQueue.main.async {
                 AlertHelper.show(
-                    title: "Başarılı Satın Alım!",
-                    message: "Ürün ücretsiz olarak simüle edildi."
+                    title: "WscIapHook Başarılı!",
+                    message: "Ürün ID: \(productID)\nSınıfı: \(className)"
                 )
             }
             
