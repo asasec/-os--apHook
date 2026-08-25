@@ -15,10 +15,12 @@ struct Tweak {
         //UniversalListener().hook()
         //WscIapHook().hook()
         
-        // Cocos2d-x / Objective-C altyapısının oturması için ufak bir gecikme ile FLEX açılıyor
+        // Çökme (silent crash) yaşamamak için FLEX açılışı geçici olarak yorum satırına alındı
+        /*
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             FLEXManager.shared.showExplorer()
         }
+        */
 
 
         
