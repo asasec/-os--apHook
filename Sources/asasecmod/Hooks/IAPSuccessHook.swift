@@ -29,6 +29,18 @@ struct IAPSuccessHook: Hook {
     }
 }
 
+struct EpisodeLockOverrideHook: Hook {
+    typealias T = @convention(c) (AnyObject, Selector) -> Int
+    
+    let cls: AnyClass? = objc_lookUpClass("RSPlayEpisodeItem")
+    let sel: Selector = NSSelectorFromString("is_lock")
+    
+    let replace: T = { selfObj, sel in
+        // Her bölümün kilit durumunu 0 (kilitsiz/açık) yapıyoruz
+        return 0
+    }
+}
+
 struct UserAccountCoinsOverrideHook: Hook {
     typealias T = @convention(c) (AnyObject, Selector, Int) -> Void
     
