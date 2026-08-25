@@ -12,19 +12,14 @@ Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 
-# SPM modül yollarını doğrudan .build altındaki arm64 debug/release çıktı dizinlerinden arıyoruz
-SPM_MODULE_DIR_ALT1 = $(shell find .build -path "*/debug-iphoneos/*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
-SPM_MODULE_DIR_ALT2 = $(shell find .build -path "*/arm64-apple-ios*/*" -name "*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
-SPM_MODULE_DIR_ALT3 = $(shell find .build -name "*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
-
-# Hangisi dolu dönerse onu seçiyoruz
-SPM_FINAL_MODULE_DIR = $(if $(SPM_MODULE_DIR_ALT1),$(SPM_MODULE_DIR_ALT1),$(if $(SPM_MODULE_DIR_ALT2),$(SPM_MODULE_DIR_ALT2),$(SPM_MODULE_DIR_ALT3)))
+# Doğrudan swiftmodule dosyalarını barındıran üst dizini buluyoruz
+SPM_FINAL_MODULE_DIR = $(shell find .build -type f -name "*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
 
 # Derlenen tüm SPM nesne dosyalarını (.o) tek seferde topluyoruz
 SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 
-# Modül dizinini hem ana klasör hem de parent olarak ekliyoruz ki hem Jinx hem FLEX çözümlensin
-Asasecİap_SWIFTFLAGS = -swift-version 5 -I$(SPM_FINAL_MODULE_DIR) -I$(shell dirname $(SPM_FINAL_MODULE_DIR))
+# Doğru modül klasörünü -I ile ekliyoruz
+Asasecİap_SWIFTFLAGS = -swift-version 5 -I$(SPM_FINAL_MODULE_DIR)
 
 Asasecİap_CFLAGS = -fobjc-arc
 
