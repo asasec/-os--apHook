@@ -13,7 +13,11 @@ struct Tweak {
        // ReelShortPurchaseHook().hook()
         //ListenerSKProductsRequest().hook()
         //UniversalListener().hook()
-        FLEXManager.shared.showExplorer()
+        
+        // Cocos2d-x / Objective-C altyapısının oturması için ufak bir gecikme ile FLEX açılıyor
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            FLEXManager.shared.showExplorer()
+        }
 
 
         
@@ -33,7 +37,7 @@ struct Tweak {
         }*/
     }
     
-    private static func showMenu() {
+    /*private static func showMenu() {
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
                   let rootVC = window.rootViewController else {
@@ -46,7 +50,7 @@ struct Tweak {
                 rootVC.add(controller)
             }
         }
-    }
+    }*/
 } // <-- Eksik olan struct kapanış parantezi eklendi
 
 @_cdecl("jinx_entry")
