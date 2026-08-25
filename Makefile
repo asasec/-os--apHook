@@ -13,41 +13,65 @@ SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 
 # ============================================================
 # Swift Package Manager
+# SPM zaten GitHub Actions'ta build ediliyor.
+# Burada tekrar swift build ÇALIŞTIRILMIYOR.
 # ============================================================
 
 SPM_MODULE_DIR = $(CURDIR)/.build/arm64-apple-ios/release
-SPM_DEBUG_MODULE_DIR = $(CURDIR)/.build/arm64-apple-ios/debug
 
 # ============================================================
 # Jinx Swift Module
 # ============================================================
 
-JINX_MODULE_DIR = $(shell find "$(SPM_MODULE_DIR)" -type f -name "Jinx.swiftmodule" -print -quit 2>/dev/null | xargs -r dirname)
-
-ifeq ($(strip $(JINX_MODULE_DIR)),)
-JINX_MODULE_DIR = $(shell find "$(SPM_DEBUG_MODULE_DIR)" -type f -name "Jinx.swiftmodule" -print -quit 2>/dev/null | xargs -r dirname)
-endif
+JINX_MODULE_DIR = $(shell find "$(SPM_MODULE_DIR)" \
+	-type f \
+	-name "Jinx.swiftmodule" \
+	-print \
+	-quit 2>/dev/null | xargs -r dirname)
 
 # ============================================================
 # FLEX Clang Module
 # ============================================================
 
-FLEX_MODULEMAP = $(shell find "$(SPM_MODULE_DIR)" -type f -name "module.modulemap" -path "*FLEX*" -print -quit 2>/dev/null)
+FLEX_MODULEMAP = $(shell find "$(SPM_MODULE_DIR)" \
+	-type f \
+	-name "module.modulemap" \
+	-path "*FLEX*" \
+	-print \
+	-quit 2>/dev/null)
 
-ifeq ($(strip $(FLEX_MODULEMAP)),)
-FLEX_MODULEMAP = $(shell find "$(SPM_DEBUG_MODULE_DIR)" -type f -name "module.modulemap" -path "*FLEX*" -print -quit 2>/dev/null)
-endif
-
-FLEX_MODULE_DIR = $(shell if [ -n "$(FLEX_MODULEMAP)" ]; then dirname "$(FLEX_MODULEMAP)"; fi)
+FLEX_MODULE_DIR = $(shell \
+	if [ -n "$(FLEX_MODULEMAP)" ]; then \
+		dirname "$(FLEX_MODULEMAP)"; \
+	fi)
 
 # FLEX public headers
-FLEX_HEADER_DIR = $(shell find "$(CURDIR)/.build" -type d -path "*FLEX*" -name "Headers" -print -quit 2>/dev/null)
+FLEX_HEADER_DIR = $(shell find "$(CURDIR)/.build/checkouts/FLEX/Classes" \
+	-type d \
+	-name "Headers" \
+	-print \
+	-quit 2>/dev/null)
 
 # ============================================================
-# SPM Object Files
+# SPM RELEASE OBJECTS
+#
+# Sadece Jinx + FLEX release object dosyaları.
+#
+# DEBUG kullanılmıyor.
+# Asasecİap SPM objectleri kullanılmıyor.
 # ============================================================
 
-SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
+FLEX_OBJECTS = $(shell find "$(SPM_MODULE_DIR)/FLEX.build" \
+	-type f \
+	-name "*.o" \
+	2>/dev/null)
+
+JINX_OBJECTS = $(shell find "$(SPM_MODULE_DIR)/Jinx.build" \
+	-type f \
+	-name "*.o" \
+	2>/dev/null)
+
+SPM_OBJECTS = $(FLEX_OBJECTS) $(JINX_OBJECTS)
 
 # ============================================================
 # Swift Flags
@@ -55,7 +79,6 @@ SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 
 Asasecİap_SWIFTFLAGS = -swift-version 5 \
                        -I$(SPM_MODULE_DIR) \
-                       -I$(SPM_DEBUG_MODULE_DIR) \
                        -I$(JINX_MODULE_DIR) \
                        -I$(FLEX_MODULE_DIR) \
                        -I$(FLEX_HEADER_DIR)
@@ -101,45 +124,74 @@ before-all::
 	fi
 
 	@echo "========================================"
-	@echo "Resolving Swift Package Manager"
+	@echo "Checking existing Swift Package build"
 	@echo "========================================"
 
-	swift package resolve
+	@if [ ! -d "$(SPM_MODULE_DIR)" ]; then \
+		echo "ERROR: SPM release directory not found:"; \
+		echo "$(SPM_MODULE_DIR)"; \
+		echo ""; \
+		echo "Run the Swift Package build before make."; \
+		exit 1; \
+	fi
+
+	@echo "SPM_MODULE_DIR=$(SPM_MODULE_DIR)"
+	@echo ""
 
 	@echo "========================================"
-	@echo "Building Swift packages (Jinx & FLEX)"
-	@echo "========================================"
-
-	swift build \
-		--configuration release \
-		--sdk "$(SDK_PATH)" \
-		--triple arm64-apple-ios14.0
-
-	@echo "========================================"
-	@echo "SPM Module Information"
+	@echo "Jinx Module"
 	@echo "========================================"
 
 	@echo "JINX_MODULE_DIR=$(JINX_MODULE_DIR)"
+	@echo ""
+
+	@if [ -z "$(JINX_MODULE_DIR)" ]; then \
+		echo "ERROR: Jinx.swiftmodule not found."; \
+		exit 1; \
+	fi
+
+	@echo "========================================"
+	@echo "FLEX Module"
+	@echo "========================================"
+
 	@echo "FLEX_MODULEMAP=$(FLEX_MODULEMAP)"
 	@echo "FLEX_MODULE_DIR=$(FLEX_MODULE_DIR)"
 	@echo "FLEX_HEADER_DIR=$(FLEX_HEADER_DIR)"
 	@echo ""
 
+	@if [ -z "$(FLEX_MODULEMAP)" ]; then \
+		echo "ERROR: FLEX module.modulemap not found."; \
+		exit 1; \
+	fi
+
+	@if [ -z "$(FLEX_HEADER_DIR)" ]; then \
+		echo "ERROR: FLEX Headers directory not found."; \
+		exit 1; \
+	fi
+
 	@echo "========================================"
-	@echo "Searching FLEX module maps"
+	@echo "Checking FLEX Objects"
 	@echo "========================================"
 
-	@find .build -type f -name "module.modulemap" -print 2>/dev/null || true
-
-	@echo ""
-	@echo "========================================"
-	@echo "Searching FLEX headers"
-	@echo "========================================"
-
-	@find .build -type f \( -name "FLEXManager.h" -o -name "FLEX.h" \) -print 2>/dev/null || true
-
-	@echo ""
+	@echo "FLEX_OBJECTS count: $(words $(FLEX_OBJECTS))"
+	@echo "JINX_OBJECTS count: $(words $(JINX_OBJECTS))"
 	@echo "SPM_OBJECTS count: $(words $(SPM_OBJECTS))"
+	@echo ""
+
+	@if [ -z "$(FLEX_OBJECTS)" ]; then \
+		echo "ERROR: FLEX release object files not found."; \
+		exit 1; \
+	fi
+
+	@if [ -z "$(JINX_OBJECTS)" ]; then \
+		echo "ERROR: Jinx release object files not found."; \
+		exit 1; \
+	fi
+
+	@echo "========================================"
+	@echo "SPM build already exists."
+	@echo "Skipping swift build."
+	@echo "========================================"
 
 # ============================================================
 # After Install
