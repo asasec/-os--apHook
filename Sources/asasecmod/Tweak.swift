@@ -21,7 +21,8 @@ struct Tweak {
                   DelegateHook().hook()
                   TransactionHook().hook()
                   IAPSuccessHook().hook()
-                  UserAccountOverrideHook().hook()
+                  UserAccountCoinsOverrideHook().hook()
+                  UserAccountBonusOverrideHook().hook()
                   UserAccountVipOverrideHook().hook()
                   
                   GuiAlert.BilgiAktar(baslik: "StoreKit-1", mesaj: "Yama Uygulandı")
