@@ -12,13 +12,12 @@ Asasecİap_FILES = $(wildcard Sources/asasecmod/*.swift) \
 
 SDK_PATH = $(shell xcrun --sdk iphoneos --show-sdk-path)
 
-# Doğrudan swiftmodule dosyalarını barındıran üst dizini buluyoruz
-SPM_FINAL_MODULE_DIR = $(shell find .build -type f -name "*.swiftmodule" 2>/dev/null | head -n 1 | xargs dirname)
+# LS çıktısına göre daha sonra tam yolu nokta atışı güncelleyeceğiz, şimdilik güvenli bir arama bırakıyoruz
+SPM_FINAL_MODULE_DIR = $(shell find .build -type d -name "arm64-apple-ios*" 2>/dev/null | head -n 1)
 
 # Derlenen tüm SPM nesne dosyalarını (.o) tek seferde topluyoruz
 SPM_OBJECTS = $(shell find .build -path "*/*.build/*.o" 2>/dev/null)
 
-# Doğru modül klasörünü -I ile ekliyoruz
 Asasecİap_SWIFTFLAGS = -swift-version 5 -I$(SPM_FINAL_MODULE_DIR)
 
 Asasecİap_CFLAGS = -fobjc-arc
@@ -64,7 +63,11 @@ before-all::
 		--sdk "$(SDK_PATH)" \
 		--triple arm64-apple-ios14.0
 
-	@echo "SPM_FINAL_MODULE_DIR: $(SPM_FINAL_MODULE_DIR)"
+	@echo "========================================"
+	@echo "Listing .build contents (ls -R .build)"
+	@echo "========================================"
+	@find .build -maxdepth 4 -ls || ls -R .build
+
 	@echo "SPM_OBJECTS count: $(words $(SPM_OBJECTS))"
 
 after-install::
