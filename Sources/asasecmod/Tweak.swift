@@ -11,31 +11,71 @@ struct Tweak {
             
             GuiAlert.BaslangicEkrani(
                FlexGui: {
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+               
+                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Flex Arayüzü Açılıyor")
+               
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                  
                      FLEXManager.shared.showExplorer()
-                  }
+                     
+                  }           
+                  
                },
                
                StoreKitHook: {
-                  CanPayHook().hook()
-                  DelegateHook().hook()
-                  TransactionHook().hook()
-                  IAPSuccessHook().hook()
-                  UserAccountCoinsOverrideHook().hook()
-                  UserAccountBonusOverrideHook().hook()
-                  UserAccountVipOverrideHook().hook()
-                  EpisodeLockOverrideHook().hook()
-                  CoinsHook().hook()
-                  BonusHook().hook()
                   
-                  GuiAlert.BilgiAktar(baslik: "StoreKit-1", mesaj: "Yama Uygulandı")
+                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "StoreKit-1 Sistem Frameworkuna Yama Uygulanıyor")
+                  
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                  
+                     StoreKit1.OdemeHook().hook()
+                     StoreKit1.TemsilciHook().hook()
+                     StoreKit1.IslemHook().hook()
+                     
+                     GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "StoreKit-1 Sistem Frameworku Yaması Uygulandı")
+                     
+                  }
+                  
                },
                
                Kapat: {
-                  GuiAlert.BilgiAktar(baslik: "Durduruldu", mesaj: "Uygulama veya Oyun kapatılıp açılana kadar durduruldu")
+               
+                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Direkt Sonlandırıldı")
+                  
                }
             )
         }
+        
+        //Oyuna Ozel
+        
+        /*DispatchQueue.main.asyncAfter(deadline: .now() + 4.0) {
+            
+            GuiAlert.OyunaOzel(
+            
+               Modlu: {
+               
+                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Mod Yaması Uygulanıyor")
+               
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                  
+                     //Mod
+                     
+                     GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Mod Yaması Uygulandı")
+                     
+                  }           
+                  
+               },
+               
+               Modsuz: {
+                  
+                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Modsuz Devam Ediliyor")
+                  
+               },
+               
+               mesaj: " Oyuna ozel Mod surum "
+               
+            )
+        }*/
 
         // İlk açılışta menüyü ekle
        /* showMenu()
