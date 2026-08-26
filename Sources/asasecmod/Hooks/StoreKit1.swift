@@ -84,7 +84,7 @@ public enum StoreKit1 {
         
         @discardableResult
         public static func hook() -> Bool {
-            return IslemHook().hook()
+            return IslemHook.hook()
         }
     }
 }
