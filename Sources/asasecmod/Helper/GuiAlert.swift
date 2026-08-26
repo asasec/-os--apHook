@@ -23,46 +23,179 @@ struct GuiAlert {
         }
     }
     
-    static func BaslangicEkrani(FlexGui: @escaping () -> Void, ButonDinle: @escaping () -> Void, StoreKitHook: @escaping () -> Void, Kapat: @escaping () -> Void) {
+    static func BaslangicEkrani(
+        
+        FlexGui: @escaping () -> Void,
+        Dinleyici: @escaping () -> Void,
+        StoreKitHook: @escaping () -> Void,
+        Kapat: @escaping () -> Void
+
+    ) {
+
         DispatchQueue.main.async {
+
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
                   let rootVC = window.rootViewController else {
                 return
             }
-            
+
             var topController = rootVC
             while let presented = topController.presentedViewController {
                 topController = presented
             }
-            
+
             let alert = UIAlertController(
+
                 title: "@asasecmod",
                 message: nil,
                 preferredStyle: .alert
+
             )
-            
-            let FlexGuiT = UIAlertAction(title: "FLEX Arayüzünü Aç", style: .default) { _ in
+
+            let FlexGuiT = UIAlertAction(
+                title: "FLEX Arayüzünü Aç",
+                style: .default
+            ) { _ in
+
                 FlexGui()
+
             }
 
-            let ButonDinleT = UIAlertAction(title: "Buton Dinleyiciyi Aç", style: .default) { _ in
-                ButonDinle()
+            let DinleyiciT = UIAlertAction(
+                title: "Buton Dinleyiciyi Aç",
+                style: .default
+            ) { _ in
+
+                Dinleyici()
+
             }
-            
-            let StoreKitHookT = UIAlertAction(title: "StoreKit-1 Satın Almaları Yamala", style: .default) { _ in
+
+            let StoreKitHookT = UIAlertAction(
+                title: "StoreKit-1 Satın Almaları Yamala",
+                style: .default
+            ) { _ in
+
                 StoreKitHook()
+
             }
-            
-            let KapatT = UIAlertAction(title: "Menüyü Kapat", style: .cancel) { _ in
+
+            let KapatT = UIAlertAction(
+                title: "Menüyü Kapat",
+                style: .cancel
+            ) { _ in
+
                 Kapat()
+
             }
-            
+
             alert.addAction(FlexGuiT)
-            alert.addAction(ButonDinleT)
+            alert.addAction(DinleyiciT)
             alert.addAction(StoreKitHookT)
             alert.addAction(KapatT)
+
+            topController.present(
+                alert,
+                animated: true,
+                completion: nil
+            )
+
+        }
+    }
+
+    static func DinleyiciMenu(
+        
+        baslik: String
+
+    ) {
+
+        DispatchQueue.main.async {
+
+            guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
+                  let rootVC = window.rootViewController else {
+                return
+            }
+
+            var topController = rootVC
+            while let presented = topController.presentedViewController {
+                topController = presented
+            }
+
+            let alert = UIAlertController(
+
+                title: baslik,
+                message: nil,
+                preferredStyle: .alert
+
+            )
+
+            let ButonDinleT = UIAlertAction(
+                title: "Buton Dinleyiciyi Aç",
+                style: .default
+            ) { _ in
+
+                ButonDinleyici.DinlemeyeBasla()
+
+            }
+
+            let SliderDinleT = UIAlertAction(
+                title: "Slider Dinleyiciyi Aç",
+                style: .default
+            ) { _ in
+
+                SliderDinleyici.DinlemeyeBasla()
+
+            }
+
+            let SwitchDinleT = UIAlertAction(
+                title: "Switch Dinleyiciyi Aç",
+                style: .default
+            ) { _ in
+
+                SwitchDinleyici.DinlemeyeBasla()
+
+            }
+
+            let TextFieldDinleT = UIAlertAction(
+                title: "TextField Dinleyiciyi Aç",
+                style: .default
+
+            ) { _ in
+
+                TextFieldDinleyici.DinlemeyeBasla()
+
+            }
+
+            let SegmentedDinleT = UIAlertAction(
+                title: "Segment Dinleyiciyi Aç",
+                style: .default
+            ) { _ in
+
+                SegmentedDinleyici.DinlemeyeBasla()
+
+            }
+
+            let StepperDinleT = UIAlertAction(
+                title: "Stepper Dinleyiciyi Aç",
+                style: .default
+            ) { _ in
+
+                StepperDinleyici.DinlemeyeBasla()
+
+            }
+
+            alert.addAction(ButonDinleT)
+            alert.addAction(SliderDinleT)
+            alert.addAction(SwitchDinleT)
+            alert.addAction(TextFieldDinleT)
+            alert.addAction(SegmentedDinleT)
+            alert.addAction(StepperDinleT)
             
-            topController.present(alert, animated: true, completion: nil)
+            topController.present(
+                alert,
+                animated: true,
+                completion: nil
+            )
+
         }
     }
     
