@@ -83,7 +83,7 @@ struct GuiAlert {
                 Modlu()
             }
             
-            let StoreKitHookT = UIAlertAction(title: "Modsuz Giriş Yap", style: .default) { _ in
+            let ModsuzT = UIAlertAction(title: "Modsuz Giriş Yap", style: .default) { _ in
                 Modsuz()
             }
             
