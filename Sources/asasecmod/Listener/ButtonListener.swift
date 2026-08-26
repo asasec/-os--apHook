@@ -7,7 +7,6 @@ public final class ButonDinleyici {
     private static let lock = NSLock()
 
     public static func DinlemeyeBasla() {
-
         lock.lock()
         defer {
             lock.unlock()
@@ -18,35 +17,21 @@ public final class ButonDinleyici {
         }
 
         isStarted = true
-
         swizzleSendAction()
     }
 
     private static func swizzleSendAction() {
-
-        let originalSelector =
-            #selector(UIControl.sendAction(_:to:for:))
-
-        let hookedSelector =
-            #selector(UIControl.asasec_sendAction(_:to:for:))
+        let originalSelector = #selector(UIControl.sendAction(_:to:for:))
+        let hookedSelector = #selector(UIControl.asasec_sendAction(_:to:for:))
 
         guard
-            let originalMethod = class_getInstanceMethod(
-                UIControl.self,
-                originalSelector
-            ),
-            let hookedMethod = class_getInstanceMethod(
-                UIControl.self,
-                hookedSelector
-            )
+            let originalMethod = class_getInstanceMethod(UIControl.self, originalSelector),
+            let hookedMethod = class_getInstanceMethod(UIControl.self, hookedSelector)
         else {
             return
         }
 
-        method_exchangeImplementations(
-            originalMethod,
-            hookedMethod
-        )
+        method_exchangeImplementations(originalMethod, hookedMethod)
     }
 }
 
@@ -57,44 +42,36 @@ extension UIControl {
         to target: Any?,
         for event: UIEvent?
     ) {
-
         guard let button = self as? UIButton else {
             self.asasec_sendAction(
                 action,
                 to: target,
                 for: event
             )
-
             return
         }
 
-        let buttonTitle =
-            button.title(for: .normal) ?? "Başlıksız"
+        let buttonTitle: String
 
-        let controlClass =
-            NSStringFromClass(type(of: button))
+        if let title = button.title(for: .normal), !title.isEmpty {
+            buttonTitle = title
+        } else {
+            buttonTitle = "Başlıksız UIButton"
+        }
+
+        let controlClass = String(describing: type(of: button))
 
         let targetClass: String
 
         if let target = target {
-
-            targetClass =
-                NSStringFromClass(type(of: target))
-
+            targetClass = String(describing: type(of: target))
         } else {
-
             targetClass = "nil"
         }
 
-        let methodName =
-            NSStringFromSelector(action)
-
-        let identifier =
-            button.accessibilityIdentifier ?? "Yok"
-
-        let tag =
-            button.tag
-
+        let methodName = NSStringFromSelector(action)
+        let identifier = button.accessibilityIdentifier ?? "Yok"
+        let tag = button.tag
 
         let mesaj = """
         Buton: \(buttonTitle)
@@ -106,16 +83,12 @@ extension UIControl {
         """
 
         if Thread.isMainThread {
-
             GuiAlert.BilgiAktar(
                 baslik: "Tuş Yakalandı",
                 mesaj: mesaj
             )
-
         } else {
-
             DispatchQueue.main.async {
-
                 GuiAlert.BilgiAktar(
                     baslik: "Tuş Yakalandı",
                     mesaj: mesaj
