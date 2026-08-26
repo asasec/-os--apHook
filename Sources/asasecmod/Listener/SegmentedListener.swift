@@ -8,45 +8,86 @@ public final class SegmentedDinleyici {
 
     public static func DinlemeyeBasla() {
         lock.lock()
-        defer { lock.unlock() }
+        defer {
+            lock.unlock()
+        }
 
-        guard !isStarted else { return }
+        guard !isStarted else {
+            return
+        }
 
         isStarted = true
         swizzle()
     }
 
     private static func swizzle() {
-        let originalSelector = #selector(UISegmentedControl.setSelectedSegmentIndex(_:))
-        let hookedSelector = #selector(UISegmentedControl.asasec_setSelectedSegmentIndex(_:))
+        let originalSelector = #selector(UIControl.sendAction(_:to:for:))
+        let hookedSelector = #selector(UIControl.asasec_segmentedSendAction(_:to:for:))
 
         guard
-            let originalMethod = class_getInstanceMethod(UISegmentedControl.self, originalSelector),
-            let hookedMethod = class_getInstanceMethod(UISegmentedControl.self, hookedSelector)
+            let originalMethod = class_getInstanceMethod(
+                UIControl.self,
+                originalSelector
+            ),
+            let hookedMethod = class_getInstanceMethod(
+                UIControl.self,
+                hookedSelector
+            )
         else {
             return
         }
 
-        method_exchangeImplementations(originalMethod, hookedMethod)
+        method_exchangeImplementations(
+            originalMethod,
+            hookedMethod
+        )
     }
 }
 
-extension UISegmentedControl {
+extension UIControl {
 
-    @objc func asasec_setSelectedSegmentIndex(_ index: Int) {
+    @objc func asasec_segmentedSendAction(
+        _ action: Selector,
+        to target: Any?,
+        for event: UIEvent?
+    ) {
+        guard let segmented = self as? UISegmentedControl else {
+            self.asasec_segmentedSendAction(
+                action,
+                to: target,
+                for: event
+            )
+            return
+        }
 
-        let title = index >= 0 && index < numberOfSegments
-            ? titleForSegment(at: index) ?? "Başlıksız"
-            : "Seçim Yok"
+        let index = segmented.selectedSegmentIndex
+
+        let title: String
+
+        if index >= 0 && index < segmented.numberOfSegments {
+            title = segmented.titleForSegment(at: index) ?? "Başlıksız"
+        } else {
+            title = "Seçim Yok"
+        }
+
+        let targetClass: String
+
+        if let target = target {
+            targetClass = String(describing: type(of: target))
+        } else {
+            targetClass = "nil"
+        }
 
         let message = """
-        SegmentedControl
-        Sınıf: \(String(describing: type(of: self)))
+        Segment
+        Sınıf: \(String(describing: type(of: segmented)))
         Index: \(index)
         Başlık: \(title)
-        Segment Sayısı: \(numberOfSegments)
-        Tag: \(tag)
-        ID: \(accessibilityIdentifier ?? "Yok")
+        Segment Sayısı: \(segmented.numberOfSegments)
+        Target: \(targetClass)
+        Metod: \(NSStringFromSelector(action))
+        Tag: \(segmented.tag)
+        ID: \(segmented.accessibilityIdentifier ?? "Yok")
         """
 
         let show = {
@@ -62,6 +103,10 @@ extension UISegmentedControl {
             DispatchQueue.main.async(execute: show)
         }
 
-        self.asasec_setSelectedSegmentIndex(index)
+        self.asasec_segmentedSendAction(
+            action,
+            to: target,
+            for: event
+        )
     }
 }
