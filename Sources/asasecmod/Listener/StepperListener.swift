@@ -8,42 +8,77 @@ public final class StepperDinleyici {
 
     public static func DinlemeyeBasla() {
         lock.lock()
-        defer { lock.unlock() }
+        defer {
+            lock.unlock()
+        }
 
-        guard !isStarted else { return }
+        guard !isStarted else {
+            return
+        }
 
         isStarted = true
         swizzle()
     }
 
     private static func swizzle() {
-        let originalSelector = #selector(UIStepper.setValue(_:))
-        let hookedSelector = #selector(UIStepper.asasec_setValue(_:))
+        let originalSelector = #selector(UIControl.sendAction(_:to:for:))
+        let hookedSelector = #selector(UIControl.asasec_stepperSendAction(_:to:for:))
 
         guard
-            let originalMethod = class_getInstanceMethod(UIStepper.self, originalSelector),
-            let hookedMethod = class_getInstanceMethod(UIStepper.self, hookedSelector)
+            let originalMethod = class_getInstanceMethod(
+                UIControl.self,
+                originalSelector
+            ),
+            let hookedMethod = class_getInstanceMethod(
+                UIControl.self,
+                hookedSelector
+            )
         else {
             return
         }
 
-        method_exchangeImplementations(originalMethod, hookedMethod)
+        method_exchangeImplementations(
+            originalMethod,
+            hookedMethod
+        )
     }
 }
 
-extension UIStepper {
+extension UIControl {
 
-    @objc func asasec_setValue(_ value: Double) {
+    @objc func asasec_stepperSendAction(
+        _ action: Selector,
+        to target: Any?,
+        for event: UIEvent?
+    ) {
+        guard let stepper = self as? UIStepper else {
+            self.asasec_stepperSendAction(
+                action,
+                to: target,
+                for: event
+            )
+            return
+        }
+
+        let targetClass: String
+
+        if let target = target {
+            targetClass = String(describing: type(of: target))
+        } else {
+            targetClass = "nil"
+        }
 
         let message = """
         Stepper
-        Sınıf: \(String(describing: type(of: self)))
-        Değer: \(value)
-        Minimum: \(minimumValue)
-        Maximum: \(maximumValue)
-        Adım: \(stepValue)
-        Tag: \(tag)
-        ID: \(accessibilityIdentifier ?? "Yok")
+        Sınıf: \(String(describing: type(of: stepper)))
+        Değer: \(stepper.value)
+        Minimum: \(stepper.minimumValue)
+        Maximum: \(stepper.maximumValue)
+        Adım: \(stepper.stepValue)
+        Target: \(targetClass)
+        Metod: \(NSStringFromSelector(action))
+        Tag: \(stepper.tag)
+        ID: \(stepper.accessibilityIdentifier ?? "Yok")
         """
 
         let show = {
@@ -59,6 +94,10 @@ extension UIStepper {
             DispatchQueue.main.async(execute: show)
         }
 
-        self.asasec_setValue(value)
+        self.asasec_stepperSendAction(
+            action,
+            to: target,
+            for: event
+        )
     }
 }
