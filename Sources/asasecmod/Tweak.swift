@@ -12,7 +12,7 @@ struct Tweak {
             GuiAlert.BaslangicEkrani(
                FlexGui: {
                
-                  GuiAlert.SaniyeliUyari(baslik: "@asasecmod", mesaj: "Flex Arayüzü Açılıyor", saniye: 3)
+                  GuiAlert.SaniyeliUyari(baslik: "FLEX", mesaj: "     Flex Arayüzü Açılıyor     ", saniye: 3)
                
                   DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
                   
@@ -21,10 +21,24 @@ struct Tweak {
                   }           
                   
                },
+
+               ButonDinle: {
+               
+                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "     Buton Dinleme Sistem Frameworkuna Yama Uygulanıyor     ", saniye: 5)
+                
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
+                  
+                     ButonDinleyici.DinlemeyeBasla()
+                     
+                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "     Buton Dinleme Sistem Frameworkuna Yama Uygulandı     ", saniye: 4)
+
+                  }
+                  
+               },
                
                StoreKitHook: {
                   
-                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "StoreKit-1 Sistem Frameworkuna Yama Uygulanıyor", saniye: 5)
+                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "     StoreKit-1 Sistem Frameworkuna Yama Uygulanıyor     ", saniye: 5)
                 
                   DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
                   
@@ -32,15 +46,15 @@ struct Tweak {
                      StoreKit1.TemsilciHook().hook()
                      StoreKit1.IslemHook().hook()
                      
-                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "StoreKit-1 Sistem Frameworkuna Yama Uygulandı", saniye: 4)
+                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "     StoreKit-1 Sistem Frameworkuna Yama Uygulandı     ", saniye: 4)
                      
                   }
                   
                },
-               
+                
                Kapat: {
                
-                  GuiAlert.SaniyeliUyari(baslik: "Uyarı", mesaj: "Direkt Durduruldu, İşlemsiz Geçildi", saniye: 4)
+                  GuiAlert.SaniyeliUyari(baslik: "Uyarı", mesaj: "     Direkt Durduruldu, İşlemsiz Geçildi     ", saniye: 4)
                   
                }
             )
