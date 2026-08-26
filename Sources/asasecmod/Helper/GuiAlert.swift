@@ -23,7 +23,7 @@ struct GuiAlert {
         }
     }
     
-    static func BaslangicEkrani(FlexGui: @escaping () -> Void, StoreKitHook: @escaping () -> Void, Kapat: @escaping () -> Void) {
+    static func BaslangicEkrani(FlexGui: @escaping () -> Void, ButonDinle: @escaping () -> Void, StoreKitHook: @escaping () -> Void, Kapat: @escaping () -> Void) {
         DispatchQueue.main.async {
             guard let window = UIApplication.shared.windows.first(where: { $0.isKeyWindow }) ?? UIApplication.shared.windows.first,
                   let rootVC = window.rootViewController else {
@@ -44,6 +44,10 @@ struct GuiAlert {
             let FlexGuiT = UIAlertAction(title: "FLEX Arayüzünü Aç", style: .default) { _ in
                 FlexGui()
             }
+
+            let ButonDinleT = UIAlertAction(title: "Buton Dinleyiciyi Aç", style: .default) { _ in
+                ButonDinle()
+            }
             
             let StoreKitHookT = UIAlertAction(title: "StoreKit-1 Satın Almaları Yamala", style: .default) { _ in
                 StoreKitHook()
@@ -54,6 +58,7 @@ struct GuiAlert {
             }
             
             alert.addAction(FlexGuiT)
+            alert.addAction(ButonDinleT)
             alert.addAction(StoreKitHookT)
             alert.addAction(KapatT)
             
