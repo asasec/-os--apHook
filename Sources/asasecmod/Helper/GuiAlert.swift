@@ -206,3 +206,4 @@ struct GuiAlert {
         activeWindow?.isHidden = true
         activeWindow = nil
     }
+}
