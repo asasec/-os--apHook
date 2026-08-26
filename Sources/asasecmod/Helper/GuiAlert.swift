@@ -125,7 +125,8 @@ struct GuiAlert {
             topController.present(alert, animated: true, completion: nil)
         }
     }
-    
+
+    @available(iOS 13.0, *)
     @discardableResult
     public static func SaniyeliUyari(saniye: TimeInterval, mesaj: String) -> GuiAlert {
         DispatchQueue.main.async {
