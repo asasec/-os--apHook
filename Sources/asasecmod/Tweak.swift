@@ -12,7 +12,7 @@ struct Tweak {
             GuiAlert.BaslangicEkrani(
                FlexGui: {
                
-                  GuiAlert.SaniyeliUyari(baslik: "FLEX", mesaj: "     Flex Arayüzü Açılıyor     ", saniye: 3)
+                  GuiAlert.SaniyeliUyari(baslik: "FLEX", mesaj: "\nFlex Arayüzü Açılıyor\n", saniye: 3)
                
                   DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
                   
@@ -22,15 +22,13 @@ struct Tweak {
                   
                },
 
-               ButonDinle: {
+               Dinleyici: {
                
-                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "     Buton Dinleme Sistem Frameworkuna Yama Uygulanıyor     ", saniye: 5)
+                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "\nDinleme ile İlgili Sistem Frameworkuna Yama Uygulanıyor\n", saniye: 6)
                 
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 7.5) {
                   
-                     ButonDinleyici.DinlemeyeBasla()
-                     
-                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "     Buton Dinleme Sistem Frameworkuna Yama Uygulandı     ", saniye: 4)
+                     GuiAlert.DinleyiciMenu(baslik: "Dinleyici Menü")
 
                   }
                   
@@ -38,7 +36,7 @@ struct Tweak {
                
                StoreKitHook: {
                   
-                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "     StoreKit-1 Sistem Frameworkuna Yama Uygulanıyor     ", saniye: 5)
+                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "\nStoreKit-1 Sistem Frameworkuna Yama Uygulanıyor\n", saniye: 5)
                 
                   DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
                   
@@ -46,7 +44,7 @@ struct Tweak {
                      StoreKit1.TemsilciHook().hook()
                      StoreKit1.IslemHook().hook()
                      
-                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "     StoreKit-1 Sistem Frameworkuna Yama Uygulandı     ", saniye: 4)
+                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "\nStoreKit-1 Sistem Frameworkuna Yama Uygulandı\n", saniye: 4)
                      
                   }
                   
@@ -54,7 +52,7 @@ struct Tweak {
                 
                Kapat: {
                
-                  GuiAlert.SaniyeliUyari(baslik: "Uyarı", mesaj: "     Direkt Durduruldu, İşlemsiz Geçildi     ", saniye: 4)
+                  GuiAlert.SaniyeliUyari(baslik: "Uyarı", mesaj: "\nDirekt Durduruldu, İşlemsiz Geçildi\n", saniye: 4)
                   
                }
             )
