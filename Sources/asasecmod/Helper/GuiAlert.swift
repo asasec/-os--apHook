@@ -128,25 +128,22 @@ struct GuiAlert {
 
     @available(iOS 13.0, *)
     @discardableResult
-    public static func SaniyeliUyari(saniye: TimeInterval, mesaj: String) -> GuiAlert {
+    public static func SaniyeliUyari(baslik: String, mesaj: String, saniye: TimeInterval) -> GuiAlert {
         DispatchQueue.main.async {
-           
-            dismiss()
             
+            dismiss()
             
             guard let windowScene = UIApplication.shared.connectedScenes
                 .compactMap({ $0 as? UIWindowScene })
                 .first(where: { $0.activationState == .foregroundActive }) else { return }
             
-            
             let window = UIWindow(windowScene: windowScene)
             window.windowLevel = .alert + 1
             window.isHidden = false
             
-            
             let viewController = UIViewController()
+            // Arka planı karartır ve arkadaki uygulamanın dokunulmasını tamamen engeller
             viewController.view.backgroundColor = UIColor.black.withAlphaComponent(0.4)
-            
             
             let alertBox = UIView()
             alertBox.backgroundColor = UIColor.systemBackground.withAlphaComponent(0.95)
@@ -157,38 +154,49 @@ struct GuiAlert {
             alertBox.layer.shadowRadius = 10
             alertBox.translatesAutoresizingMaskIntoConstraints = false
             
+            let titleLabel = UILabel()
+            titleLabel.text = baslik
+            titleLabel.numberOfLines = 0
+            titleLabel.textAlignment = .center
+            titleLabel.font = .systemFont(ofSize: 18, weight: .bold)
+            titleLabel.textColor = .label
+            titleLabel.translatesAutoresizingMaskIntoConstraints = false
             
-            let label = UILabel()
-            label.text = mesaj
-            label.numberOfLines = 0
-            label.textAlignment = .center
-            label.font = .systemFont(ofSize: 16, weight: .medium)
-            label.textColor = .label
-            label.translatesAutoresizingMaskIntoConstraints = false
+            let messageLabel = UILabel()
+            messageLabel.text = mesaj
+            messageLabel.numberOfLines = 0
+            messageLabel.textAlignment = .center
+            messageLabel.font = .systemFont(ofSize: 14, weight: .regular)
+            messageLabel.textColor = .secondaryLabel
+            messageLabel.translatesAutoresizingMaskIntoConstraints = false
             
-            
-            alertBox.addSubview(label)
+            alertBox.addSubview(titleLabel)
+            alertBox.addSubview(messageLabel)
             viewController.view.addSubview(alertBox)
             window.rootViewController = viewController
-            
             
             NSLayoutConstraint.activate([
                 alertBox.centerXAnchor.constraint(equalTo: viewController.view.centerXAnchor),
                 alertBox.centerYAnchor.constraint(equalTo: viewController.view.centerYAnchor),
-                alertBox.widthAnchor.constraint(greaterThanOrEqualToConstant: 200),
-                alertBox.widthAnchor.constraint(lessThanOrEqualToConstant: 300),
+                alertBox.widthAnchor.constraint(greaterThanOrEqualToConstant: 240),
+                alertBox.widthAnchor.constraint(lessThanOrEqualToConstant: 320),
                 
-                label.topAnchor.constraint(equalTo: alertBox.topAnchor, constant: 20),
-                label.bottomAnchor.constraint(equalTo: alertBox.bottomAnchor, constant: 20),
-                label.leadingAnchor.constraint(equalTo: alertBox.leadingAnchor, constant: 20),
-                label.trailingAnchor.constraint(equalTo: alertBox.trailingAnchor, constant: 20)
+                titleLabel.topAnchor.constraint(equalTo: alertBox.topAnchor, constant: 20),
+                titleLabel.leadingAnchor.constraint(equalTo: alertBox.leadingAnchor, constant: 20),
+                titleLabel.trailingAnchor.constraint(equalTo: alertBox.trailingAnchor, constant: -20),
+                
+                messageLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
+                messageLabel.bottomAnchor.constraint(equalTo: alertBox.bottomAnchor, constant: -20),
+                messageLabel.leadingAnchor.constraint(equalTo: alertBox.leadingAnchor, constant: 20),
+                messageLabel.trailingAnchor.constraint(equalTo: alertBox.trailingAnchor, constant: -20)
             ])
             
             activeWindow = window
             
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + saniye) {
-                dismiss()
+            if saniye > 0 {
+                DispatchQueue.main.asyncAfter(deadline: .now() + saniye) {
+                    dismiss()
+                }
             }
         }
         return GuiAlert()
@@ -198,4 +206,3 @@ struct GuiAlert {
         activeWindow?.isHidden = true
         activeWindow = nil
     }
-}
