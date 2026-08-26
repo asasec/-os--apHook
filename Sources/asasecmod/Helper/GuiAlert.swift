@@ -62,7 +62,7 @@ struct GuiAlert {
             }
 
             let DinleyiciT = UIAlertAction(
-                title: "Buton Dinleyiciyi Aç",
+                title: "Dinleyici Menüsü",
                 style: .default
             ) { _ in
 
@@ -134,6 +134,7 @@ struct GuiAlert {
             ) { _ in
 
                 ButonDinleyici.DinlemeyeBasla()
+                GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "\nButon Dinleme Yaması Yapıldı, Aktif\n", saniye: 4)
 
             }
 
@@ -143,6 +144,7 @@ struct GuiAlert {
             ) { _ in
 
                 SliderDinleyici.DinlemeyeBasla()
+                GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "\nSlider Dinleme Yaması Yapıldı, Aktif\n", saniye: 4)
 
             }
 
@@ -152,6 +154,7 @@ struct GuiAlert {
             ) { _ in
 
                 SwitchDinleyici.DinlemeyeBasla()
+                GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "\nSwitch Dinleme Yaması Yapıldı, Aktif\n", saniye: 4)
 
             }
 
@@ -162,6 +165,7 @@ struct GuiAlert {
             ) { _ in
 
                 TextFieldDinleyici.DinlemeyeBasla()
+                GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "\nTextField Dinleme Yaması Yapıldı, Aktif\n", saniye: 4)
 
             }
 
@@ -171,6 +175,7 @@ struct GuiAlert {
             ) { _ in
 
                 SegmentedDinleyici.DinlemeyeBasla()
+                GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "\nSegmented Dinleme Yaması Yapıldı, Aktif\n", saniye: 4)
 
             }
 
@@ -180,6 +185,7 @@ struct GuiAlert {
             ) { _ in
 
                 StepperDinleyici.DinlemeyeBasla()
+                GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "\nStepper Dinleme Yaması Yapıldı, Aktif\n", saniye: 4)
 
             }
 
