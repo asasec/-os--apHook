@@ -12,9 +12,9 @@ struct Tweak {
             GuiAlert.BaslangicEkrani(
                FlexGui: {
                
-                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Flex Arayüzü Açılıyor")
+                  GuiAlert.SaniyeliUyari(baslik: "@asasecmod", mesaj: "Flex Arayüzü Açılıyor", saniye: 3)
                
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 4.5) {
                   
                      FLEXManager.shared.showExplorer()
                      
@@ -24,15 +24,15 @@ struct Tweak {
                
                StoreKitHook: {
                   
-                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "StoreKit-1 Sistem Frameworkuna Yama Uygulanıyor")
-                  
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "StoreKit-1 Sistem Frameworkuna Yama Uygulanıyor", saniye: 5)
+                
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
                   
                      StoreKit1.OdemeHook().hook()
                      StoreKit1.TemsilciHook().hook()
                      StoreKit1.IslemHook().hook()
                      
-                     GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "StoreKit-1 Sistem Frameworku Yaması Uygulandı")
+                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "StoreKit-1 Sistem Frameworkuna Yama Uygulandı", saniye: 4)
                      
                   }
                   
@@ -40,7 +40,7 @@ struct Tweak {
                
                Kapat: {
                
-                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Direkt Sonlandırıldı")
+                  GuiAlert.SaniyeliUyari(baslik: "Uyarı", mesaj: "Direkt Durduruldu, İşlemsiz Geçildi", saniye: 4)
                   
                }
             )
@@ -54,13 +54,13 @@ struct Tweak {
             
                Modlu: {
                
-                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Mod Yaması Uygulanıyor")
+                  GuiAlert.SaniyeliUyari(baslik: "İşlemde", mesaj: "Yama Uygulanıyor", saniye: 4)
                
-                  DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                  DispatchQueue.main.asyncAfter(deadline: .now() + 5.5) {
                   
                      //Mod
                      
-                     GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Mod Yaması Uygulandı")
+                     GuiAlert.SaniyeliUyari(baslik: "Başarılı", mesaj: "Yama Uygulandı", saniye: 4)
                      
                   }           
                   
@@ -68,7 +68,7 @@ struct Tweak {
                
                Modsuz: {
                   
-                  GuiAlert.SaniyeliUyari(saniye: 3, mesaj: "Modsuz Devam Ediliyor")
+                  GuiAlert.SaniyeliUyari(baslik: "Uyarı", mesaj: "Yama Uygulanmadan Giriliyor", saniye: 3)
                   
                },
                
