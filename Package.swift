@@ -42,8 +42,7 @@ let package: Package = .init(
                 "Hooks",
                 "İmgui",
                 "Helper",
-                "KittyMemory",
-                "Listener"
+                "KittyMemory"
             ],
             swiftSettings: [.unsafeFlags(swiftFlags)]
         )
