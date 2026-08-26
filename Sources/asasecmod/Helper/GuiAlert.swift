@@ -102,6 +102,7 @@ struct GuiAlert {
         }
     }
 
+    @available(iOS 13.0, *)
     static func DinleyiciMenu(
         
         baslik: String
