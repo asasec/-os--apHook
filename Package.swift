@@ -26,15 +26,13 @@ let package: Package = .init(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/Paisseon/Jinx.git", branch: "development"),
-        .package(url: "https://github.com/TimOliver/fleXD.git", branch: "main")
+        .package(url: "https://github.com/Paisseon/Jinx.git", branch: "development")
     ],
     targets: [
         .target(
             name: "Asasecİap",
             dependencies: [
-                .product(name: "Jinx", package: "Jinx"),
-                .product(name: "FLEX", package: "fleXD")
+                .product(name: "Jinx", package: "Jinx")
             ],
             path: "Sources/asasecmod",
             sources: [
